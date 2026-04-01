@@ -31,12 +31,14 @@ for key, cat in categories.items():
     cleaned = []
 
     for a in articles:
-    title = (a.get("title") or "").lower()
-    desc = (a.get("description") or "").lower()
+        title = (a.get("title") or "").lower()
+        desc = (a.get("description") or "").lower()
 
-    # ✅ FILTER ONLY FOR FINANCE CATEGORY
-    if key == "financeiro":
-        if not any(word in title or word in desc for word in FINANCE_KEYWORDS):
+        # ✅ FILTER ONLY FOR FINANCE CATEGORY
+        if key == "financeiro":
+            if not any(word in title or word in desc for word in FINANCE_KEYWORDS):
+                continue
+        if not a.get("title") or not a.get("url"):
             continue
 
         cleaned.append({
