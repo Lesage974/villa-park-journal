@@ -1,6 +1,13 @@
 {
   "internacional": [
     {
+      "title": "Asian Cup Qualifiers: Ryan Williams impresses on India debut, scores in win over Hong Kong",
+      "description": "Football News: KOCHI: India earned their first win in the AFC Asian Cup 2027 Qualifiers with a 2-1 victory over Hong Kong at the Jawaharlal Nehru International Stadi.",
+      "url": "https://timesofindia.indiatimes.com/sports/football/top-stories/asian-cup-qualifiers-ryan-williams-impresses-on-india-debut-scores-in-win-over-hong-kong/articleshow/129944404.cms",
+      "image": "https://static.toiimg.com/thumb/msid-129944412,width-1280,height-720,imgsize-82618,resizemode-6,overlay-toi_sw,pt-32,y_pad-600/photo.jpg",
+      "source": "Times of India"
+    },
+    {
       "title": "Canada warns visa fraud offenders face five-year ban",
       "description": "Canada's immigration department warns that submitting fake documents can lead to a five-year entry ban, urging vigilance against scams in visa applications. | World News",
       "url": "https://www.hindustantimes.com/world-news/canada-warns-visa-fraud-offenders-face-five-year-ban-101775026319234.html",
@@ -13,39 +20,39 @@
       "url": "https://www.hindustantimes.com/world-news/hindu-temples-in-canada-seek-govt-protection-amid-khalistan-rally-calls-101775026140911.html",
       "image": "https://www.hindustantimes.com/ht-img/img/2026/04/01/550x309/Pro-Khalistan-radicals-attacking-the-Hindu-Sabha-M_1775026133213.png",
       "source": "Hindustan Times"
-    },
-    {
-      "title": "Trump to address the world and give 'important' Iran war update in just hours",
-      "description": "This is a breaking news story and is being constantly updated by our reporters as the breaking news story develops",
-      "url": "https://www.dailystar.co.uk/news/latest-news/breaking-trump-address-world-give-36952365",
-      "image": "https://i2-prod.dailystar.co.uk/news/us-news/article36853904.ece/ALTERNATES/s1200/0_An-individual-dressed-in-formal-attire-consisting-of-a-suit-and-tie-is-addressing-a-crowd-or-media-while-standing.jpg",
-      "source": "The daily Star"
     }
   ],
   "financeiro": [
     {
-      "title": "Anthropic reconhece que parte do código de uma de suas ferramentas foi publicado por engano",
+      "title": "Starmer diz que Reino Unido organizará reunião sobre a navegação em Ormuz",
       "description": "Últimas notícias sobre os acontecimentos do mundo. Informações sobre política, economia, cultura, cotidiano, conflitos, em todo mundo.",
-      "url": "https://www.em.com.br/internacional/2026/04/7388417-anthropic-reconhece-que-parte-do-codigo-de-uma-de-suas-ferramentas-foi-publicado-por-engano.html",
+      "url": "https://www.em.com.br/internacional/2026/04/7388419-starmer-diz-que-reino-unido-organizara-reuniao-sobre-a-navegacao-em-ormuz.html",
       "image": "https://www.em.com.br/static/placeholder.png",
       "source": "Estado de Minas"
     },
     {
-      "title": "Governo espanhol se declara envergonhado e polícia investiga gritos racistas durante Espanha-Egito",
-      "description": "Últimas notícias sobre os acontecimentos do mundo. Informações sobre política, economia, cultura, cotidiano, conflitos, em todo mundo.",
-      "url": "https://www.em.com.br/internacional/2026/04/7388418-governo-espanhol-se-declara-envergonhado-e-policia-investiga-gritos-racistas-durante-espanha-egito.html",
-      "image": "https://www.em.com.br/static/placeholder.png",
-      "source": "Estado de Minas"
+      "title": "Serenidade é recomendação para todos",
+      "description": "O BC acerta em sua recomendação. E o governo não deveria tentar estimular a economia",
+      "url": "https://oglobo.globo.com/economia/zeina-latif/coluna/2026/04/serenidade-e-recomendacao-para-todos.ghtml",
+      "image": "https://ogcss.infoglobo.com.br/9876543210/img/oglobo.jpg",
+      "source": "O GLOBO"
     },
     {
-      "title": "Entrega das declarações do IRS às Finanças começa hoje para seis milhões de agregados",
-      "description": "O prazo de submissão dura três meses, decorrendo entre 01 de abril e 30 de junho.",
-      "url": "https://jornaleconomico.sapo.pt/noticias/entrega-das-declaracoes-do-irs-as-financas-comeca-hoje-para-seis-milhoes-de-agregados/",
-      "image": "https://jornaleconomico.sapo.pt/wp-content/uploads/2025/10/irs-e1763690384446.jpg",
-      "source": "Jornal Económico"
+      "title": "Trend da Rocinha: vídeo de drone em laje da favela vira febre e é copiado no país e no mundo; escolha o seu preferido",
+      "description": "Conteúdo viral está sendo recriado por estrangeiros em diferentes partes do mundo e movimenta a economia local da maior favela do país",
+      "url": "https://oglobo.globo.com/rio/noticia/2026/04/01/trend-da-rocinha-video-de-drone-em-laje-da-favela-vira-febre-e-e-copiado-no-pais-e-no-mundo-escolha-o-seu-preferido.ghtml",
+      "image": "https://s2-oglobo.glbimg.com/RnWXTmh-xaHTOj0T4apPYfMVxL0=/8192x0/filters:format(jpeg)/https://i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2026/H/8/dWfWIBQ9yxktry6EmmhQ/113804435-ri-rio-de-janeiro-rj-09-02-2026-o-boom-do-turismo-na-rocinha-o-bairro-agora-tem-moto-tour-1-1-.jpg",
+      "source": "O GLOBO"
     }
   ],
   "brasil": [
+    {
+      "title": "Em eleição polarizada, deputados brigam, enquanto população espera",
+      "description": "Acompanhe as últimas notícias de Pernambuco, Brasil e do mundo - Notícias sempre atualizadas",
+      "url": "https://www.folhape.com.br/colunistas/folha-politica/em-eleicao-polarizada-deputados-brigam-enquanto-populacao-espera/56444/",
+      "image": "https://cdn.folhape.com.br/img/c/800/600/dn_arquivo/2026/03/alepesessao.jpg",
+      "source": "Folha De Pernambuco"
+    },
     {
       "title": "Os 12 grupos da Copa do Mundo de 2026",
       "description": "Veja as principais notícias e manchetes do dia no Brasil e no Mundo. Leia textos e assista a vídeos de Política, Cotidiano, Crimes e mais.",
@@ -58,13 +65,6 @@
       "description": "Veja resultados, notícias, entrevistas, fotos, vídeos e os bastidores do esporte. Acompanhe ao vivo os principais eventos esportivos no Brasil e do mundo.",
       "url": "https://www.uol.com.br/esporte/futebol/ultimas-noticias/2026/04/01/endrick-revela-medo-antes-de-decidir-contra-a-croacia-tinha-que-ir-bem.ghtm",
       "image": "https://conteudo.imguol.com.br/c/esporte/79/2026/04/01/endrick-celebra-apos-sofrer-penalti-no-amistoso-entre-brasil-e-croacia-antes-da-copa-do-mundo-2026-1775012812339_v2_615x300.jpg",
-      "source": "UOL"
-    },
-    {
-      "title": "Ancelotti elogia atuação do Brasil e exalta desempenho de novos jogadores: 'Dúvidas aumentaram'",
-      "description": "Veja resultados, notícias, entrevistas, fotos, vídeos e os bastidores do esporte. Acompanhe ao vivo os principais eventos esportivos no Brasil e do mundo.",
-      "url": "https://www.uol.com.br/esporte/ultimas-noticias/agencia/2026/04/01/ancelotti-elogia-atuacao-do-brasil-e-exalta-desempenho-de-novos-jogadores-duvidas-aumentaram.htm",
-      "image": "https://conteudo.imguol.com.br/c/_layout/v3/jupiter/share.png",
       "source": "UOL"
     }
   ]
