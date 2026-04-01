@@ -11,7 +11,7 @@ FINANCE_KEYWORDS = [
 
 categories = {
     "internacional": {"query": "world OR international news", "lang": "en"},
-    "financeiro": {"query": "economia OR mercado OR financas", "lang": "pt"},
+    "financeiro": {"query": "financas", "lang": "pt"},
     "brasil": {"query": "noticias brasil", "lang": "pt"}
 }
 
