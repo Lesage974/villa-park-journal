@@ -3,6 +3,11 @@ import json
 import os
 
 API_KEY = os.getenv("GNEWS_API_KEY")
+FINANCE_KEYWORDS = [
+    "economia", "mercado", "finance", "banco", "juros",
+    "inflação", "dólar", "bolsa", "invest", "PIB",
+    "taxa", "crédito", "ações"
+]
 
 categories = {
     "internacional": {"query": "world OR international news", "lang": "en"},
@@ -26,7 +31,12 @@ for key, cat in categories.items():
     cleaned = []
 
     for a in articles:
-        if not a.get("title") or not a.get("url"):
+    title = (a.get("title") or "").lower()
+    desc = (a.get("description") or "").lower()
+
+    # ✅ FILTER ONLY FOR FINANCE CATEGORY
+    if key == "financeiro":
+        if not any(word in title or word in desc for word in FINANCE_KEYWORDS):
             continue
 
         cleaned.append({
