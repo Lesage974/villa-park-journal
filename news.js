@@ -4,7 +4,7 @@
  * Replace GNEWS_KEY with a real free key from https://gnews.io for live news.
  */
 
-const GNEWS_KEY = 'YOUR_GNEWS_KEY'; // Replace with free key from gnews.io
+const GNEWS_KEY = db4737cbca37d685136a17b89e23ea5a; // Replace with free key from gnews.io
 
 const CATEGORIES = {
   internacional: { query: 'world news', label: 'Internacional', lang: 'en' },
