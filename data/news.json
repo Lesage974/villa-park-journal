@@ -1,4 +1,50 @@
 {
+  "internacional": [
+    {
+      "title": "Canada warns visa fraud offenders face five-year ban",
+      "description": "Canada's immigration department warns that submitting fake documents can lead to a five-year entry ban, urging vigilance against scams in visa applications. | World News",
+      "url": "https://www.hindustantimes.com/world-news/canada-warns-visa-fraud-offenders-face-five-year-ban-101775026319234.html",
+      "image": "https://www.hindustantimes.com/ht-img/img/2026/04/01/550x309/Recent-social-media-posts-by-Immigration--Refugees_1775026313170.jpg",
+      "source": "Hindustan Times"
+    },
+    {
+      "title": "Hindu temples in Canada seek govt protection amid Khalistan rally calls",
+      "description": "The locations were Triveni Mandir in Brampton, part of the Greater Toronto Area, and Lakshmi Narayan Mandir in Surrey, British Columbia | World News",
+      "url": "https://www.hindustantimes.com/world-news/hindu-temples-in-canada-seek-govt-protection-amid-khalistan-rally-calls-101775026140911.html",
+      "image": "https://www.hindustantimes.com/ht-img/img/2026/04/01/550x309/Pro-Khalistan-radicals-attacking-the-Hindu-Sabha-M_1775026133213.png",
+      "source": "Hindustan Times"
+    },
+    {
+      "title": "Trump to address the world and give 'important' Iran war update in just hours",
+      "description": "This is a breaking news story and is being constantly updated by our reporters as the breaking news story develops",
+      "url": "https://www.dailystar.co.uk/news/latest-news/breaking-trump-address-world-give-36952365",
+      "image": "https://i2-prod.dailystar.co.uk/news/us-news/article36853904.ece/ALTERNATES/s1200/0_An-individual-dressed-in-formal-attire-consisting-of-a-suit-and-tie-is-addressing-a-crowd-or-media-while-standing.jpg",
+      "source": "The daily Star"
+    }
+  ],
+  "financeiro": [
+    {
+      "title": "Anthropic reconhece que parte do código de uma de suas ferramentas foi publicado por engano",
+      "description": "Últimas notícias sobre os acontecimentos do mundo. Informações sobre política, economia, cultura, cotidiano, conflitos, em todo mundo.",
+      "url": "https://www.em.com.br/internacional/2026/04/7388417-anthropic-reconhece-que-parte-do-codigo-de-uma-de-suas-ferramentas-foi-publicado-por-engano.html",
+      "image": "https://www.em.com.br/static/placeholder.png",
+      "source": "Estado de Minas"
+    },
+    {
+      "title": "Governo espanhol se declara envergonhado e polícia investiga gritos racistas durante Espanha-Egito",
+      "description": "Últimas notícias sobre os acontecimentos do mundo. Informações sobre política, economia, cultura, cotidiano, conflitos, em todo mundo.",
+      "url": "https://www.em.com.br/internacional/2026/04/7388418-governo-espanhol-se-declara-envergonhado-e-policia-investiga-gritos-racistas-durante-espanha-egito.html",
+      "image": "https://www.em.com.br/static/placeholder.png",
+      "source": "Estado de Minas"
+    },
+    {
+      "title": "Entrega das declarações do IRS às Finanças começa hoje para seis milhões de agregados",
+      "description": "O prazo de submissão dura três meses, decorrendo entre 01 de abril e 30 de junho.",
+      "url": "https://jornaleconomico.sapo.pt/noticias/entrega-das-declaracoes-do-irs-as-financas-comeca-hoje-para-seis-milhoes-de-agregados/",
+      "image": "https://jornaleconomico.sapo.pt/wp-content/uploads/2025/10/irs-e1763690384446.jpg",
+      "source": "Jornal Económico"
+    }
+  ],
   "brasil": [
     {
       "title": "Os 12 grupos da Copa do Mundo de 2026",
