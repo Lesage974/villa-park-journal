@@ -1,6 +1,13 @@
 {
   "internacional": [
     {
+      "title": "Is China covering up a violent attack at a Beijing market?",
+      "description": "When asked, a police officer refused to say if anything had happened. | World News",
+      "url": "https://www.hindustantimes.com/world-news/is-china-covering-up-a-violent-attack-at-a-beijing-market-101775027415090.html",
+      "image": "https://www.hindustantimes.com/ht-img/img/2026/04/01/550x309/China-Daily-Life-2_1775027504086_1775027522994.jpg",
+      "source": "Hindustan Times"
+    },
+    {
       "title": "Asian Cup Qualifiers: Ryan Williams impresses on India debut, scores in win over Hong Kong",
       "description": "Football News: KOCHI: India earned their first win in the AFC Asian Cup 2027 Qualifiers with a 2-1 victory over Hong Kong at the Jawaharlal Nehru International Stadi.",
       "url": "https://timesofindia.indiatimes.com/sports/football/top-stories/asian-cup-qualifiers-ryan-williams-impresses-on-india-debut-scores-in-win-over-hong-kong/articleshow/129944404.cms",
@@ -13,36 +20,29 @@
       "url": "https://www.hindustantimes.com/world-news/canada-warns-visa-fraud-offenders-face-five-year-ban-101775026319234.html",
       "image": "https://www.hindustantimes.com/ht-img/img/2026/04/01/550x309/Recent-social-media-posts-by-Immigration--Refugees_1775026313170.jpg",
       "source": "Hindustan Times"
-    },
-    {
-      "title": "Hindu temples in Canada seek govt protection amid Khalistan rally calls",
-      "description": "The locations were Triveni Mandir in Brampton, part of the Greater Toronto Area, and Lakshmi Narayan Mandir in Surrey, British Columbia | World News",
-      "url": "https://www.hindustantimes.com/world-news/hindu-temples-in-canada-seek-govt-protection-amid-khalistan-rally-calls-101775026140911.html",
-      "image": "https://www.hindustantimes.com/ht-img/img/2026/04/01/550x309/Pro-Khalistan-radicals-attacking-the-Hindu-Sabha-M_1775026133213.png",
-      "source": "Hindustan Times"
     }
   ],
   "financeiro": [
     {
-      "title": "Starmer diz que Reino Unido organizará reunião sobre a navegação em Ormuz",
-      "description": "Últimas notícias sobre os acontecimentos do mundo. Informações sobre política, economia, cultura, cotidiano, conflitos, em todo mundo.",
-      "url": "https://www.em.com.br/internacional/2026/04/7388419-starmer-diz-que-reino-unido-organizara-reuniao-sobre-a-navegacao-em-ormuz.html",
-      "image": "https://www.em.com.br/static/placeholder.png",
-      "source": "Estado de Minas"
+      "title": "Entrega das declarações do IRS às Finanças começa hoje para seis milhões de agregados",
+      "description": "O prazo de submissão dura três meses, decorrendo entre 01 de abril e 30 de junho.",
+      "url": "https://jornaleconomico.sapo.pt/noticias/entrega-das-declaracoes-do-irs-as-financas-comeca-hoje-para-seis-milhoes-de-agregados/",
+      "image": "https://jornaleconomico.sapo.pt/wp-content/uploads/2025/10/irs-e1763690384446.jpg",
+      "source": "Jornal Económico"
     },
     {
-      "title": "Serenidade é recomendação para todos",
-      "description": "O BC acerta em sua recomendação. E o governo não deveria tentar estimular a economia",
-      "url": "https://oglobo.globo.com/economia/zeina-latif/coluna/2026/04/serenidade-e-recomendacao-para-todos.ghtml",
-      "image": "https://ogcss.infoglobo.com.br/9876543210/img/oglobo.jpg",
-      "source": "O GLOBO"
+      "title": "Entrega das declarações do IRS às Finanças arranca esta quarta",
+      "description": "A entrega das declarações de IRS relativas aos rendimentos ganhos ao longo de 2025 arranca esta quarta-feira no Portal das Finanças para mais de seis milhões de agregados familiares.",
+      "url": "https://sicnoticias.pt/economia/2026-04-01-entrega-das-declaracoes-do-irs-as-financas-arranca-esta-quarta-feira-134b59a9",
+      "image": "https://images.impresa.pt/sicnot/2023-04-26-Calculadora-IRS-contas-5d4f6386-1/1.91x1?wm=true&outputFormat=jpeg",
+      "source": "SIC Notícias"
     },
     {
-      "title": "Trend da Rocinha: vídeo de drone em laje da favela vira febre e é copiado no país e no mundo; escolha o seu preferido",
-      "description": "Conteúdo viral está sendo recriado por estrangeiros em diferentes partes do mundo e movimenta a economia local da maior favela do país",
-      "url": "https://oglobo.globo.com/rio/noticia/2026/04/01/trend-da-rocinha-video-de-drone-em-laje-da-favela-vira-febre-e-e-copiado-no-pais-e-no-mundo-escolha-o-seu-preferido.ghtml",
-      "image": "https://s2-oglobo.glbimg.com/RnWXTmh-xaHTOj0T4apPYfMVxL0=/8192x0/filters:format(jpeg)/https://i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2026/H/8/dWfWIBQ9yxktry6EmmhQ/113804435-ri-rio-de-janeiro-rj-09-02-2026-o-boom-do-turismo-na-rocinha-o-bairro-agora-tem-moto-tour-1-1-.jpg",
-      "source": "O GLOBO"
+      "title": "IRS arranca hoje: Da entrega ao reembolso, um guia para não se perder",
+      "description": "Os contribuintes podem submeter as declarações do IRS referentes aos rendimentos de 2025, no Portal das Finanças, a partir desta quarta-feira, dia 1 de abril, e até ao final de junho. Confira os pontos essenciais neste guia.",
+      "url": "https://www.noticiasaominuto.com/economia/2964988/irs-arranca-hoje-da-entrega-ao-reembolso-um-guia-para-nao-se-perder",
+      "image": "https://media-manager.noticiasaominuto.com/960/naom_69cb926f0f664.webp",
+      "source": "Notícias ao Minuto"
     }
   ],
   "brasil": [
