@@ -222,7 +222,7 @@ document.getElementById('file-xlsx').addEventListener('change', function() {
 // ================================================================
 //  ROWS TO SKIP
 // ================================================================
-const SKIP_STARTS = ['total', 'data atual', 'previsão', 'previsao', 'villa park', 'filtro'];
+const SKIP_STARTS = ['data atual', 'previsão', 'previsao', 'villa park', 'filtro'];
 
 function shouldSkip(cellStr) {
   const s = cellStr.toLowerCase().trim();
@@ -293,7 +293,15 @@ function parseExcel(buffer, filename) {
       const row = raw[r];
       const cellStr = String(row[colData] || '').trim();
 
-      if (shouldSkip(cellStr)) continue;
+      let pastTotal = false;
+
+      function shouldSkip(cellStr) {
+        const s = cellStr.toLowerCase().trim();
+        if (!s) return true;
+        if (s.startsWith('total')) { pastTotal = true; return true; }
+        if (pastTotal) return true;
+        return SKIP_STARTS.some(k => s.startsWith(k));
+      }
 
       const rn  = colRN  >= 0 ? String(row[colRN]  || '').trim() : '';
       const pct = colPct >= 0 ? String(row[colPct] || '').trim() : '';
