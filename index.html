@@ -10,7 +10,6 @@
 </head>
 <body>
 
-  <!-- MASTHEAD -->
   <header class="masthead">
     <div class="masthead-inner">
       <div class="masthead-meta left">
@@ -28,6 +27,8 @@
         <span class="dot">·</span>
         <span>N° <span id="edition-number"></span></span>
         <span class="dot">·</span>
+        <a href="sergio/index.html" class="admin-link">Sergio</a>
+        <span class="dot">·</span>
         <a href="admin/index.html" class="admin-link">Admin</a>
       </div>
     </div>
@@ -40,49 +41,20 @@
     </div>
   </header>
 
-  <!-- WEATHER BAR -->
   <section class="weather-bar">
     <div class="weather-inner">
       <div class="weather-label">☁ Previsão da Semana — Recife</div>
       <div class="weather-days">
-        <div class="weather-day">
-          <span class="wd-name">Qua</span>
-          <span class="wd-icon" title="Chuva leve">🌦</span>
-          <span class="wd-temp">26°C</span>
-          <span class="wd-precip">60%</span>
-        </div>
-        <div class="weather-day">
-          <span class="wd-name">Qui</span>
-          <span class="wd-icon" title="Chuva leve">🌧</span>
-          <span class="wd-temp">28°C</span>
-          <span class="wd-precip">30%</span>
-        </div>
-        <div class="weather-day">
-          <span class="wd-name">Sex</span>
-          <span class="wd-icon" title="Chuva leve">🌧</span>
-          <span class="wd-temp">28°C</span>
-          <span class="wd-precip">35%</span>
-        </div>
-        <div class="weather-day">
-          <span class="wd-name">Sáb</span>
-          <span class="wd-icon" title="Sol">🌤</span>
-          <span class="wd-temp">28°C</span>
-          <span class="wd-precip">25%</span>
-        </div>
-        <div class="weather-day">
-          <span class="wd-name">Dom</span>
-          <span class="wd-icon" title="Sol">🌤</span>
-          <span class="wd-temp">29°C</span>
-          <span class="wd-precip">20%</span>
-        </div>
+        <div class="weather-day"><span class="wd-name">Qua</span><span class="wd-icon">🌦</span><span class="wd-temp">26°C</span><span class="wd-precip">60%</span></div>
+        <div class="weather-day"><span class="wd-name">Qui</span><span class="wd-icon">🌧</span><span class="wd-temp">28°C</span><span class="wd-precip">30%</span></div>
+        <div class="weather-day"><span class="wd-name">Sex</span><span class="wd-icon">🌧</span><span class="wd-temp">28°C</span><span class="wd-precip">35%</span></div>
+        <div class="weather-day"><span class="wd-name">Sáb</span><span class="wd-icon">🌤</span><span class="wd-temp">28°C</span><span class="wd-precip">25%</span></div>
+        <div class="weather-day"><span class="wd-name">Dom</span><span class="wd-icon">🌤</span><span class="wd-temp">29°C</span><span class="wd-precip">20%</span></div>
       </div>
-      <div class="weather-current">
-        Agora: <strong>26°C</strong> · Garoa leve
-      </div>
+      <div class="weather-current">Agora: <strong>26°C</strong> · Garoa leve</div>
     </div>
   </section>
 
-  <!-- NEWS CAROUSEL -->
   <section class="news-section">
     <div class="news-tabs">
       <button class="news-tab active" data-tab="internacional">Novidade Internacional</button>
@@ -91,66 +63,9 @@
       <div class="tab-divider"></div>
       <button class="news-tab" data-tab="brasil">Novidade Brasil</button>
     </div>
-
-    <div class="news-panel active" id="tab-internacional">
-      <div class="news-grid" id="news-internacional">
-        <div class="news-card skeleton">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-text short"></div>
-        </div>
-        <div class="news-card skeleton">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-text short"></div>
-        </div>
-        <div class="news-card skeleton">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-text short"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="news-panel" id="tab-financeiro">
-      <div class="news-grid" id="news-financeiro">
-        <div class="news-card skeleton">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-text short"></div>
-        </div>
-        <div class="news-card skeleton">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-text short"></div>
-        </div>
-        <div class="news-card skeleton">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-text short"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="news-panel" id="tab-brasil">
-      <div class="news-grid" id="news-brasil">
-        <div class="news-card skeleton">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-text short"></div>
-        </div>
-        <div class="news-card skeleton">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-text short"></div>
-        </div>
-        <div class="news-card skeleton">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-text"></div>
-          <div class="skeleton-text short"></div>
-        </div>
-      </div>
-    </div>
+    <div class="news-panel active" id="tab-internacional"><div class="news-grid" id="news-internacional"><div class="news-card skeleton"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div><div class="news-card skeleton"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div><div class="news-card skeleton"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div></div></div>
+    <div class="news-panel" id="tab-financeiro"><div class="news-grid" id="news-financeiro"><div class="news-card skeleton"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div><div class="news-card skeleton"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div><div class="news-card skeleton"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div></div></div>
+    <div class="news-panel" id="tab-brasil"><div class="news-grid" id="news-brasil"><div class="news-card skeleton"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div><div class="news-card skeleton"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div><div class="news-card skeleton"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div></div></div>
   </section>
 
   <div class="section-rule-wrap">
@@ -159,38 +74,29 @@
     <div class="section-rule"></div>
   </div>
 
-  <!-- HOTEL REPORTS (Lorem Ipsum placeholder) -->
   <section class="reports-section">
     <div class="reports-grid">
       <article class="report-card">
-        <h3 class="report-title">Ocupação & Hóspedes</h3>
-        <p class="report-body">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Taxa de ocupação registrou desempenho acima da média mensal, com destaque para o segmento corporativo.
-        </p>
+        <h3 class="report-title">Ocupação &amp; Hóspedes</h3>
+        <p class="report-body">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Taxa de ocupação registrou desempenho acima da média mensal, com destaque para o segmento corporativo.</p>
         <div class="report-stat-row">
           <div class="report-stat"><span class="stat-num">--</span><span class="stat-label">Quartos Ocupados</span></div>
           <div class="report-stat"><span class="stat-num">--%</span><span class="stat-label">Taxa de Ocup.</span></div>
           <div class="report-stat"><span class="stat-num">--</span><span class="stat-label">Check-ins</span></div>
         </div>
       </article>
-
       <article class="report-card">
         <h3 class="report-title">Receita do Dia</h3>
-        <p class="report-body">
-          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-        </p>
+        <p class="report-body">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
         <div class="report-stat-row">
           <div class="report-stat"><span class="stat-num">R$--</span><span class="stat-label">Hospedagem</span></div>
-          <div class="report-stat"><span class="stat-num">R$--</span><span class="stat-label">F&B</span></div>
+          <div class="report-stat"><span class="stat-num">R$--</span><span class="stat-label">F&amp;B</span></div>
           <div class="report-stat"><span class="stat-num">R$--</span><span class="stat-label">Total</span></div>
         </div>
       </article>
-
       <article class="report-card">
-        <h3 class="report-title">Restaurante & Serviços</h3>
-        <p class="report-body">
-          Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.
-        </p>
+        <h3 class="report-title">Restaurante &amp; Serviços</h3>
+        <p class="report-body">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         <div class="report-stat-row">
           <div class="report-stat"><span class="stat-num">--</span><span class="stat-label">Covers</span></div>
           <div class="report-stat"><span class="stat-num">--%</span><span class="stat-label">Satisfação</span></div>
@@ -198,10 +104,7 @@
         </div>
       </article>
     </div>
-
-    <div class="lorem-notice">
-      ⚑ Secção de relatórios — dados serão alimentados automaticamente pelos ficheiros Excel carregados no painel de administração.
-    </div>
+    <div class="lorem-notice">⚑ Secção de relatórios — dados serão alimentados automaticamente pelos ficheiros Excel carregados no painel de administração.</div>
   </section>
 
   <footer class="site-footer">
@@ -209,22 +112,21 @@
     <div class="footer-inner">
       <img src="assets/logo.png" alt="Villa Park Hotel" class="footer-logo" />
       <p>© <span id="footer-year"></span> Villa Park Hotel Recife · Journal Interno · Todos os direitos reservados</p>
-      <a href="admin/index.html" class="footer-admin">Painel Admin</a>
+      <div style="display:flex;gap:16px;">
+        <a href="sergio/index.html" class="footer-admin">Painel Sergio</a>
+        <a href="admin/index.html" class="footer-admin">Painel Admin</a>
+      </div>
     </div>
   </footer>
 
   <script src="news.js"></script>
   <script>
-    // Date & edition
     const now = new Date();
     const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('today-date').textContent = now.toLocaleDateString('pt-BR', opts);
     const start = new Date('2024-01-01');
-    const diff = Math.floor((now - start) / 86400000);
-    document.getElementById('edition-number').textContent = diff;
+    document.getElementById('edition-number').textContent = Math.floor((now - start) / 86400000);
     document.getElementById('footer-year').textContent = now.getFullYear();
-
-    // Tab switching
     document.querySelectorAll('.news-tab').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.news-tab').forEach(b => b.classList.remove('active'));
