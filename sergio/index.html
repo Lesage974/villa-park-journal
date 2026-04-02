@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Sergio — Journal do Villa Park</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <link rel="stylesheet" href="sergio.css" />
+</head>
+<body>
+
+<!-- ==================== LOGIN ==================== -->
+<div id="login-screen" class="login-screen">
+  <div class="login-card">
+    <img src="../assets/logo.png" alt="Villa Park Hotel" class="login-logo" />
+    <h1 class="login-title">Painel de Sergio</h1>
+    <p class="login-sub">Gestão de Preços &amp; Ocupação</p>
+    <div class="login-form">
+      <div class="form-group">
+        <label>Utilizador</label>
+        <input type="text" id="login-user" placeholder="SERGIO" autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label>Palavra-passe</label>
+        <input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password" />
+      </div>
+      <div id="login-error" class="login-error"></div>
+      <button class="btn-login" id="btn-do-login">Entrar</button>
+    </div>
+    <a href="../index.html" class="back-link">← Voltar ao Journal</a>
+  </div>
+</div>
+
+<!-- ==================== MAIN PANEL ==================== -->
+<div id="sergio-panel" style="display:none;">
+
+  <header class="s-header">
+    <div class="s-header-inner">
+      <div class="s-brand">
+        <img src="../assets/logo.png" alt="Villa Park Hotel" class="s-logo" />
+        <div>
+          <div class="s-title">Gestão de Preços &amp; Ocupação</div>
+          <div class="s-subtitle">Painel de Sergio — Journal do Villa Park</div>
+        </div>
+      </div>
+      <div class="s-nav">
+        <a href="../index.html" class="btn-ghost">Ver Journal</a>
+        <button class="btn-ghost" id="btn-logout">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="s-main">
+
+    <!-- IMPORT -->
+    <div class="import-section">
+      <div class="import-card" id="import-zone" onclick="document.getElementById('file-xlsx').click()">
+        <div class="import-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <rect x="1" y="1" width="46" height="46" rx="4" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="24" y1="12" x2="24" y2="36" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="12" y1="24" x2="36" y2="24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="import-text" id="import-text">Clique para importar ficheiro Excel</div>
+        <div class="import-formats">.xls &nbsp;·&nbsp; .xlsx &nbsp;·&nbsp; .csv</div>
+      </div>
+      <input type="file" id="file-xlsx" accept=".xls,.xlsx,.csv" style="display:none" />
+      <div id="import-status" class="import-status"></div>
+    </div>
+
+    <!-- TABLE SECTION -->
+    <div id="table-section" style="display:none;">
+      <div class="table-meta" id="table-meta"></div>
+
+      <div class="table-scroll-wrap">
+        <table class="occ-table" id="occ-table">
+          <thead>
+            <tr>
+              <th class="th-data">Data</th>
+              <th class="th-rn">RN</th>
+              <th class="th-pct">%</th>
+              <th class="th-prev">Villa -1</th>
+              <th class="th-prev">Cortesia -1</th>
+              <th class="th-input">Villa</th>
+              <th class="th-input">Cortesia</th>
+              <th class="th-desconto">Desconto</th>
+              <!-- Visual spacer — color stops here -->
+              <th class="th-spacer"></th>
+              <!-- Right block -->
+              <th class="th-desc-sum">Desconto Aplicado</th>
+              <th class="th-qty">Qtd</th>
+              <th class="th-channel">Booking</th>
+              <th class="th-channel">Decolar</th>
+              <th class="th-channel">Expedia</th>
+              <th class="th-channel">Omnibees</th>
+            </tr>
+          </thead>
+          <tbody id="occ-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn-compilar" id="btn-compilar">⚙&nbsp; Compilar</button>
+        <button class="btn-imprimir" id="btn-imprimir">🖨&nbsp; Imprimir</button>
+        <div id="compilar-status" class="compilar-status"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ================================================================
+//  COLOR MAP
+// ================================================================
+const DISCOUNT_COLORS = {
+  5:   { bg: '#F3E5F5', text: '#4A148C',  label: '-5%'  },
+  10:  { bg: '#E3F2FD', text: '#0D47A1',  label: '-10%' },
+  15:  { bg: '#FFF8E1', text: '#F57F17',  label: '-15%' },
+  20:  { bg: '#FFF3E0', text: '#E65100',  label: '-20%' },
+  25:  { bg: '#FCE4EC', text: '#880E4F',  label: '-25%' },
+  30:  { bg: '#FFEBEE', text: '#B71C1C',  label: '-30%' },
+  35:  { bg: '#E8EAF6', text: '#1A237E',  label: '-35%' },
+  40:  { bg: '#E0F2F1', text: '#004D40',  label: '-40%' },
+  45:  { bg: '#F9FBE7', text: '#33691E',  label: '-45%' },
+  50:  { bg: '#ECEFF1', text: '#263238',  label: '-50%' },
+};
+const COLOR_NONE   = { bg: '#FAFAFA', text: '#9E9E9E' }; // no data / no discount
+const COLOR_NODISCOUNT = { bg: '#E8F5E9', text: '#1B5E20' }; // 0%
+
+function getColor(disc) {
+  if (disc === null) return COLOR_NONE;
+  if (disc === 0)    return COLOR_NODISCOUNT;
+  return DISCOUNT_COLORS[disc] || COLOR_NONE;
+}
+
+// ================================================================
+//  DISCOUNT CALCULATION
+//  Returns null if no data, 0 if already cheaper, else smallest 5% multiple
+// ================================================================
+function calcDiscount(villa, cortesia) {
+  if (villa === null || cortesia === null) return null;
+  if (villa <= 0) return null;
+  if (villa < cortesia) return 0;
+  for (let d = 5; d <= 50; d += 5) {
+    if (villa * (1 - d / 100) < cortesia) return d;
+  }
+  return 50;
+}
+
+// ================================================================
+//  PERSISTENT STORAGE
+//  Primary: localStorage (always works, single browser)
+//  The object is keyed by date string: { "01/04/2026": { villa: 350, cortesia: 320 }, … }
+// ================================================================
+const STORAGE_KEY = 'sergio_prices_v3';
+
+function loadSaved() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch { return {}; }
+}
+
+function mergeAndSave(rows) {
+  // Load existing, then overwrite only dates present in current rows
+  const existing = loadSaved();
+  rows.forEach(r => {
+    existing[r.data] = { villa: r.villa, cortesia: r.cortesia };
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+}
+
+// ================================================================
+//  LOGIN
+// ================================================================
+document.getElementById('btn-do-login').addEventListener('click', doLogin);
+['login-user','login-pass'].forEach(id =>
+  document.getElementById(id).addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); })
+);
+document.getElementById('btn-logout').addEventListener('click', () => {
+  sessionStorage.removeItem('sergio-auth');
+  location.reload();
+});
+
+if (sessionStorage.getItem('sergio-auth') === '1') showPanel();
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim().toUpperCase();
+  const p = document.getElementById('login-pass').value.trim().toUpperCase();
+  const err = document.getElementById('login-error');
+  if (u === 'SERGIO' && p === 'SERGIO') {
+    sessionStorage.setItem('sergio-auth', '1');
+    showPanel();
+  } else {
+    err.textContent = 'Credenciais inválidas.';
+    err.style.display = 'block';
+  }
+}
+
+function showPanel() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('sergio-panel').style.display = 'block';
+}
+
+// ================================================================
+//  FILE IMPORT
+// ================================================================
+document.getElementById('file-xlsx').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  document.getElementById('import-text').textContent = file.name;
+  document.getElementById('import-zone').classList.add('has-file');
+  const reader = new FileReader();
+  reader.onload = e => parseExcel(e.target.result, file.name);
+  reader.readAsArrayBuffer(file);
+});
+
+// ================================================================
+//  ROWS TO SKIP
+// ================================================================
+const SKIP_STARTS = ['total', 'data atual', 'previsão', 'previsao', 'villa park', 'filtro'];
+
+function shouldSkip(cellStr) {
+  const s = cellStr.toLowerCase().trim();
+  return !s || SKIP_STARTS.some(k => s.startsWith(k));
+}
+
+// ================================================================
+//  EXCEL PARSING
+// ================================================================
+function parseExcel(buffer, filename) {
+  const status = document.getElementById('import-status');
+  try {
+    const wb = XLSX.read(buffer, { type: 'arraybuffer', cellText: true, cellDates: true });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
+
+    let headerRowIdx = -1, colData = -1, colRN = -1, colPct = -1;
+    let hotelName = '', filterLabel = '';
+
+    // Pass 1: capture hotel name and filter label before header
+    for (let r = 0; r < raw.length; r++) {
+      const first = String(raw[r][0] || '').trim();
+      if (first.toLowerCase().includes('villa park hotel')) hotelName = first;
+      if (first.toLowerCase().startsWith('filtro')) filterLabel = first;
+    }
+
+    // Pass 2: find header row (contains "data" + "ocupa" or "rn")
+    for (let r = 0; r < raw.length; r++) {
+      const row = raw[r].map(c => String(c).toLowerCase().trim());
+      const di = row.findIndex(c => c === 'data');
+      const ocIdx = row.findIndex(c => c.includes('ocupa'));
+      if (di >= 0 && ocIdx >= 0) { headerRowIdx = r; colData = di; break; }
+    }
+    // Flat fallback
+    if (headerRowIdx === -1) {
+      for (let r = 0; r < raw.length; r++) {
+        const row = raw[r].map(c => String(c).toLowerCase().trim());
+        const di  = row.findIndex(c => c === 'data');
+        const rni = row.findIndex(c => c === 'rn');
+        const pci = row.findIndex(c => c === '%');
+        if (di >= 0 && (rni >= 0 || pci >= 0)) {
+          headerRowIdx = r; colData = di; colRN = rni; colPct = pci; break;
+        }
+      }
+    }
+    // Sub-header scan for RN / %
+    if (headerRowIdx >= 0 && (colRN === -1 || colPct === -1)) {
+      for (let off = 1; off <= 3; off++) {
+        const sub = (raw[headerRowIdx + off] || []).map(c => String(c).toLowerCase().trim());
+        const rni = sub.findIndex(c => c === 'rn');
+        const pci = sub.findIndex(c => c === '%' || c.includes('%'));
+        if (rni >= 0) colRN = rni;
+        if (pci >= 0 && pci !== rni) colPct = pci;
+        if (colRN >= 0 && colPct >= 0) { headerRowIdx += off; break; }
+      }
+    }
+
+    if (headerRowIdx === -1 || colData === -1) {
+      status.textContent = '⚠ Não foi possível detectar as colunas. Verifique o formato do ficheiro.';
+      status.className = 'import-status error';
+      return;
+    }
+
+    const saved = loadSaved();
+    const rows = [];
+
+    for (let r = headerRowIdx + 1; r < raw.length; r++) {
+      const row = raw[r];
+      const cellStr = String(row[colData] || '').trim();
+
+      if (shouldSkip(cellStr)) continue;
+
+      const rn  = colRN  >= 0 ? String(row[colRN]  || '').trim() : '';
+      const pct = colPct >= 0 ? String(row[colPct] || '').trim() : '';
+      const prev = saved[cellStr] || {};
+
+      rows.push({
+        data: cellStr,
+        rn:   rn  || '--',
+        pct:  pct || '--',
+        villa_prev:    prev.villa    !== undefined ? prev.villa    : null,
+        cortesia_prev: prev.cortesia !== undefined ? prev.cortesia : null,
+        villa:    null,
+        cortesia: null,
+        // checkboxes state per channel
+        checks: { Booking: false, Decolar: false, Expedia: false, Omnibees: false }
+      });
+    }
+
+    if (rows.length === 0) {
+      status.textContent = '⚠ Nenhuma linha de dados encontrada.';
+      status.className = 'import-status error';
+      return;
+    }
+
+    status.textContent = `✓ ${rows.length} linhas importadas de "${filename}"`;
+    status.className = 'import-status ok';
+
+    document.getElementById('table-meta').innerHTML = [
+      hotelName    ? `<strong>${hotelName}</strong>`    : '',
+      filterLabel  ? `<em>${filterLabel}</em>`          : ''
+    ].filter(Boolean).join(' &nbsp;·&nbsp; ');
+
+    renderTable(rows);
+    document.getElementById('table-section').style.display = 'block';
+
+  } catch(err) {
+    status.textContent = '⚠ Erro: ' + err.message;
+    status.className = 'import-status error';
+    console.error(err);
+  }
+}
+
+// ================================================================
+//  TABLE RENDERING
+// ================================================================
+let currentRows = [];
+
+function renderTable(rows) {
+  currentRows = rows;
+  const tbody = document.getElementById('occ-tbody');
+  tbody.innerHTML = '';
+
+  rows.forEach((row, i) => {
+    const disc  = calcDiscount(row.villa, row.cortesia);
+    const color = getColor(disc);
+    const hasDiscount = disc !== null && disc > 0;
+
+    const tr = document.createElement('tr');
+    tr.dataset.idx = i;
+
+    // Apply row color only up to and including the spacer (done via CSS class + inline bg)
+    // We use a class on the tr and CSS to selectively color only left-side cells
+    tr.className = 'data-row';
+    tr.dataset.colorBg   = color.bg;
+    tr.dataset.colorText = color.text;
+
+    const td = (html, cls) => {
+      const el = document.createElement('td');
+      el.className = cls || '';
+      el.innerHTML = html;
+      return el;
+    };
+
+    // Colored zone cells (bg set inline on each)
+    function coloredTd(html, cls) {
+      const el = td(html, cls);
+      el.style.backgroundColor = color.bg;
+      return el;
+    }
+
+    tr.appendChild(coloredTd(escHtml(row.data),               'td-data'));
+    tr.appendChild(coloredTd(escHtml(row.rn),                 'td-rn'));
+    tr.appendChild(coloredTd(escHtml(row.pct),                'td-pct'));
+    tr.appendChild(coloredTd(fmtPrev(row.villa_prev),         'td-prev'));
+    tr.appendChild(coloredTd(fmtPrev(row.cortesia_prev),      'td-prev'));
+
+    // Villa input
+    const tdVilla = document.createElement('td');
+    tdVilla.className = 'td-input';
+    tdVilla.style.backgroundColor = color.bg;
+    const inpVilla = makeInput(i, 'villa', row.villa);
+    tdVilla.appendChild(inpVilla);
+    tr.appendChild(tdVilla);
+
+    // Cortesia input
+    const tdCort = document.createElement('td');
+    tdCort.className = 'td-input';
+    tdCort.style.backgroundColor = color.bg;
+    const inpCort = makeInput(i, 'cortesia', row.cortesia);
+    tdCort.appendChild(inpCort);
+    tr.appendChild(tdCort);
+
+    // Desconto
+    const tdDisc = document.createElement('td');
+    tdDisc.className = 'td-desconto';
+    tdDisc.dataset.discountIdx = String(i);
+    tdDisc.style.backgroundColor = color.bg;
+    tdDisc.style.color = color.text;
+    tdDisc.style.fontWeight = '700';
+    tdDisc.textContent = fmtDiscount(disc);
+    tr.appendChild(tdDisc);
+
+    // SPACER — color boundary
+    tr.appendChild(td('', 'td-spacer'));
+
+    // Desconto Aplicado (summary chip for this row, filled by renderSummary)
+    const tdSum = document.createElement('td');
+    tdSum.className = 'td-desc-sum';
+    tdSum.dataset.sumIdx = String(i);
+    tr.appendChild(tdSum);
+
+    // Qty (count of this discount level, filled by renderSummary)
+    const tdQty = document.createElement('td');
+    tdQty.className = 'td-qty';
+    tdQty.dataset.qtyIdx = String(i);
+    tr.appendChild(tdQty);
+
+    // Booking / Decolar / Expedia / Omnibees — checkbox if discount exists
+    ['Booking', 'Decolar', 'Expedia', 'Omnibees'].forEach(ch => {
+      const tdCh = document.createElement('td');
+      tdCh.className = 'td-channel';
+      if (hasDiscount) {
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'ch-check';
+        cb.checked = row.checks[ch] || false;
+        cb.addEventListener('change', () => { currentRows[i].checks[ch] = cb.checked; });
+        tdCh.appendChild(cb);
+      }
+      tr.appendChild(tdCh);
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  renderSummary();
+}
+
+function makeInput(i, field, val) {
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.inputMode = 'decimal';
+  inp.className = 'price-input';
+  inp.placeholder = '--';
+  if (val !== null) inp.value = val;
+  inp.addEventListener('input', () => updateRow(i, field, inp.value));
+  return inp;
+}
+
+// ================================================================
+//  UPDATE ROW ON INPUT
+// ================================================================
+function updateRow(idx, field, rawVal) {
+  const val = parseFloat(String(rawVal).replace(',', '.'));
+  currentRows[idx][field] = isNaN(val) ? null : val;
+
+  const tbody = document.getElementById('occ-tbody');
+  const tr = tbody.querySelector(`tr[data-idx="${idx}"]`);
+  if (!tr) return;
+
+  const row   = currentRows[idx];
+  const disc  = calcDiscount(row.villa, row.cortesia);
+  const color = getColor(disc);
+  const hasDiscount = disc !== null && disc > 0;
+
+  // Recolor all colored cells in this row
+  tr.querySelectorAll('.td-data, .td-rn, .td-pct, .td-prev, .td-input, .td-desconto').forEach(el => {
+    el.style.backgroundColor = color.bg;
+  });
+
+  const tdDisc = tr.querySelector(`td[data-discount-idx="${idx}"]`);
+  if (tdDisc) {
+    tdDisc.textContent = fmtDiscount(disc);
+    tdDisc.style.color = color.text;
+    tdDisc.style.backgroundColor = color.bg;
+  }
+
+  // Rebuild checkboxes if discount status changed
+  const CHANNELS = ['Booking', 'Decolar', 'Expedia', 'Omnibees'];
+  const channelTds = tr.querySelectorAll('.td-channel');
+  channelTds.forEach((tdCh, ci) => {
+    const ch = CHANNELS[ci];
+    tdCh.innerHTML = '';
+    if (hasDiscount) {
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.className = 'ch-check';
+      cb.checked = row.checks[ch] || false;
+      cb.addEventListener('change', () => { currentRows[idx].checks[ch] = cb.checked; });
+      tdCh.appendChild(cb);
+    }
+  });
+
+  renderSummary();
+}
+
+// ================================================================
+//  SUMMARY COLUMN — inline in table, sorted ascending, no null/ND
+// ================================================================
+function renderSummary() {
+  const tbody = document.getElementById('occ-tbody');
+
+  // Build discount → count map (skip null / 0)
+  const counts = {};
+  currentRows.forEach(r => {
+    const d = calcDiscount(r.villa, r.cortesia);
+    if (d === null || d === 0) return;
+    counts[d] = (counts[d] || 0) + 1;
+  });
+
+  // Sorted ascending
+  const sorted = Object.keys(counts).map(Number).sort((a, b) => a - b);
+
+  // Build chip HTML list
+  const chips = sorted.map(d => {
+    const c = DISCOUNT_COLORS[d] || COLOR_NONE;
+    return {
+      d,
+      count: counts[d],
+      html: `<span class="sum-chip" style="background:${c.bg};color:${c.text};">-${d}%</span>`,
+      qty: String(counts[d])
+    };
+  });
+
+  // Distribute across rows (one chip per row, starting from row 0)
+  const trs = tbody.querySelectorAll('tr.data-row');
+  trs.forEach((tr, i) => {
+    const tdSum = tr.querySelector('.td-desc-sum');
+    const tdQty = tr.querySelector('.td-qty');
+    if (tdSum) tdSum.innerHTML = chips[i] ? chips[i].html : '';
+    if (tdQty) tdQty.textContent = chips[i] ? chips[i].qty : '';
+  });
+}
+
+// ================================================================
+//  FORMAT HELPERS
+// ================================================================
+function fmtDiscount(disc) {
+  if (disc === null) return '--';
+  if (disc === 0)    return '--';   // 0% shows as --
+  return '-' + disc + '%';
+}
+
+function fmtPrev(val) {
+  if (val === null || val === undefined) return '<span class="dim">--</span>';
+  return String(val);
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ================================================================
+//  COMPILAR — saves current villa/cortesia for next import
+//  Does NOT update the -1 cells currently shown on screen
+// ================================================================
+document.getElementById('btn-compilar').addEventListener('click', () => {
+  // Merge current session into existing saved data
+  mergeAndSave(currentRows);
+
+  const st = document.getElementById('compilar-status');
+  st.textContent = '✓ Dados guardados. Villa e Cortesia actuais serão mostrados como -1 na próxima importação.';
+  st.className = 'compilar-status ok';
+  setTimeout(() => { st.textContent = ''; }, 6000);
+});
+
+// ================================================================
+//  IMPRIMIR — PDF landscape, one page, no external summary table
+// ================================================================
+document.getElementById('btn-imprimir').addEventListener('click', () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+  // A4 landscape: 297mm wide, 210mm tall
+  const pageW = 297;
+  const marginL = 10;
+  const marginR = 10;
+  const usableW = pageW - marginL - marginR;
+
+  // Title
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Villa Park Hotel Recife — Gestão de Ocupação & Preços', marginL, 11);
+
+  const metaTxt = document.getElementById('table-meta')?.innerText?.trim();
+  let startY = 16;
+  if (metaTxt) {
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(metaTxt, marginL, startY);
+    startY += 5;
+  }
+  doc.setFontSize(7);
+  doc.text('Impresso: ' + new Date().toLocaleString('pt-BR'), marginL, startY);
+  startY += 4;
+
+  // Column definitions
+  // Data | RN | % | Villa-1 | Cortesia-1 | Villa | Cortesia | Desconto | [spacer] | Desc.Aplicado | Qtd | Booking | Decolar | Expedia | Omnibees
+  const cols = [
+    { header: 'Data',            w: 22 },
+    { header: 'RN',              w:  9 },
+    { header: '%',               w:  9 },
+    { header: 'Villa -1',        w: 14 },
+    { header: 'Cortesia -1',     w: 14 },
+    { header: 'Villa',           w: 14 },
+    { header: 'Cortesia',        w: 14 },
+    { header: 'Desconto',        w: 14 },
+    { header: '',                w:  4 },  // spacer col
+    { header: 'Desc. Aplicado',  w: 22 },
+    { header: 'Qtd',             w:  9 },
+    { header: 'Booking',         w: 22 },
+    { header: 'Decolar',         w: 22 },
+    { header: 'Expedia',         w: 22 },
+    { header: 'Omnibees',        w: 22 },
+  ];
+
+  // Scale widths to fit usableW
+  const totalDefined = cols.reduce((s, c) => s + c.w, 0);
+  const scale = usableW / totalDefined;
+  cols.forEach(c => { c.w = Math.round(c.w * scale * 10) / 10; });
+
+  const DISC_COL = 7;
+  const SPACER_COL = 8;
+  const SUM_COL = 9;
+
+  // Build summary data (same logic as renderSummary)
+  const counts = {};
+  currentRows.forEach(r => {
+    const d = calcDiscount(r.villa, r.cortesia);
+    if (d === null || d === 0) return;
+    counts[d] = (counts[d] || 0) + 1;
+  });
+  const sortedDiscs = Object.keys(counts).map(Number).sort((a, b) => a - b);
+  // Map rowIndex → summary chip
+  const summaryByRow = {};
+  sortedDiscs.forEach((d, i) => { summaryByRow[i] = { d, count: counts[d] }; });
+
+  const head = [cols.map(c => c.header)];
+
+  const CHANNELS = ['Booking', 'Decolar', 'Expedia', 'Omnibees'];
+
+  const body = currentRows.map((row, ri) => {
+    const disc = calcDiscount(row.villa, row.cortesia);
+    const hasDiscount = disc !== null && disc > 0;
+    const sumEntry = summaryByRow[ri]; // may be undefined
+
+    return [
+      row.data,
+      row.rn,
+      row.pct,
+      row.villa_prev    !== null ? String(row.villa_prev)    : '--',
+      row.cortesia_prev !== null ? String(row.cortesia_prev) : '--',
+      row.villa    !== null ? String(row.villa)    : '',
+      row.cortesia !== null ? String(row.cortesia) : '',
+      fmtDiscount(disc),
+      '',  // spacer
+      sumEntry ? `-${sumEntry.d}%` : '',
+      sumEntry ? String(sumEntry.count) : '',
+      // Channels: "OK" if checked, '' if unchecked and has discount, '' if no discount
+      ...CHANNELS.map(ch => {
+        if (!hasDiscount) return '';
+        return row.checks[ch] ? 'OK' : '';
+      })
+    ];
+  });
+
+  doc.autoTable({
+    head,
+    body,
+    startY,
+    margin: { left: marginL, right: marginR },
+    tableWidth: usableW,
+    styles: {
+      fontSize: 6.5,
+      cellPadding: 1.2,
+      font: 'helvetica',
+      valign: 'middle',
+      halign: 'center',
+      overflow: 'linebreak',
+    },
+    headStyles: {
+      fillColor: [13, 61, 46],
+      textColor: [240, 223, 160],
+      fontStyle: 'bold',
+      fontSize: 6,
+    },
+    columnStyles: Object.fromEntries(cols.map((c, i) => [i, { cellWidth: c.w }])),
+    pageBreak: 'avoid',
+    rowPageBreak: 'avoid',
+
+    didParseCell(data) {
+      if (data.section !== 'body') return;
+      const ri  = data.row.index;
+      const ci  = data.column.index;
+      const row = currentRows[ri];
+      if (!row) return;
+
+      const disc  = calcDiscount(row.villa, row.cortesia);
+      const color = getColor(disc);
+
+      // Apply row color only to left block (cols 0–7 inclusive)
+      if (ci <= DISC_COL) {
+        const bg = hexToRgb(color.bg);
+        const fg = hexToRgb(color.text);
+        if (bg) data.cell.styles.fillColor = [bg.r, bg.g, bg.b];
+        if (ci === DISC_COL && fg) {
+          data.cell.styles.textColor = [fg.r, fg.g, fg.b];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+
+      // Spacer col — light grey separator
+      if (ci === SPACER_COL) {
+        data.cell.styles.fillColor = [200, 184, 136];
+      }
+
+      // Summary chip color
+      if (ci === SUM_COL && data.cell.text[0]) {
+        const d = parseInt(data.cell.text[0]);
+        if (!isNaN(d)) {
+          const sc = DISCOUNT_COLORS[d];
+          if (sc) {
+            const bg = hexToRgb(sc.bg);
+            const fg = hexToRgb(sc.text);
+            if (bg) data.cell.styles.fillColor = [bg.r, bg.g, bg.b];
+            if (fg) data.cell.styles.textColor = [fg.r, fg.g, fg.b];
+            data.cell.styles.fontStyle = 'bold';
+          }
+        }
+      }
+    },
+
+    // Force single page: after render, warn if overflowed (can't do much in autoTable)
+  });
+
+  const today = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+  doc.save(`villa-park-ocupacao-${today}.pdf`);
+});
+
+// ================================================================
+//  UTILS
+// ================================================================
+function hexToRgb(hex) {
+  if (!hex || !hex.startsWith('#')) return null;
+  return {
+    r: parseInt(hex.slice(1,3), 16),
+    g: parseInt(hex.slice(3,5), 16),
+    b: parseInt(hex.slice(5,7), 16),
+  };
+}
+</script>
+</body>
+</html>
