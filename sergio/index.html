@@ -94,7 +94,7 @@
               <th class="th-spacer"></th>
               <!-- RIGHT BLOCK -->
               <th class="th-desc-sum">Desconto Aplicado</th>
-              <th class="th-qty">Qtd</th>
+              <th class="th-dates">Datas</th>
               <th class="th-channel">Booking</th>
               <th class="th-channel">Decolar</th>
               <th class="th-channel">Expedia</th>
@@ -435,11 +435,11 @@ function renderTable(rows) {
     tdSum.dataset.sumIdx = i;
     tr.appendChild(tdSum);
 
-    // Qty (filled by renderSummary)
-    const tdQty = document.createElement('td');
-    tdQty.className   = 'td-qty';
-    tdQty.dataset.qtyIdx = i;
-    tr.appendChild(tdQty);
+    // Dates (filled by renderSummary)
+    const tdDates = document.createElement('td');
+    tdDates.className = 'td-dates';
+    tdDates.dataset.qtyIdx = i;
+    tr.appendChild(tdDates);
 
     // Channel checkboxes — ONLY in right block, ONLY if this summary row has a discount
     // Checkboxes are linked to the summary index, not the data row index
@@ -512,23 +512,26 @@ function updateRow(idx, field, rawVal) {
 function renderSummary() {
   const tbody = document.getElementById('occ-tbody');
 
-  // Build discount counts (skip null and 0)
-  const counts = {};
+  // Build: discount level → array of "dd/mm" date strings (skip null and 0)
+  const datesByDiscount = {};
   currentRows.forEach(r => {
     const d = calcDiscount(r.villa, r.cortesia);
     if (d === null || d === 0) return;
-    counts[d] = (counts[d] || 0) + 1;
+    if (!datesByDiscount[d]) datesByDiscount[d] = [];
+    // Extract dd/mm from date string like "02/04/26 qui"
+    const match = String(r.data).match(/^(\d{2}\/\d{2})/);
+    datesByDiscount[d].push(match ? match[1] : r.data);
   });
 
   // Sorted ascending
-  const sorted = Object.keys(counts).map(Number).sort((a, b) => a - b);
+  const sorted = Object.keys(datesByDiscount).map(Number).sort((a, b) => a - b);
 
   // Distribute chips across tbody rows (row 0 = sorted[0], etc.)
   const trs = Array.from(tbody.querySelectorAll('tr.data-row'));
 
   trs.forEach((tr, rowPos) => {
-    const tdSum = tr.querySelector('.td-desc-sum');
-    const tdQty = tr.querySelector('.td-qty');
+    const tdSum   = tr.querySelector('.td-desc-sum');
+    const tdDates = tr.querySelector('.td-dates');
 
     const entry = sorted[rowPos]; // undefined if no more discounts
 
@@ -542,9 +545,9 @@ function renderSummary() {
       }
     }
 
-    // Qty
-    if (tdQty) {
-      tdQty.textContent = entry !== undefined ? String(counts[entry]) : '';
+    // Dates for this discount level — "dd/mm-dd/mm-..."
+    if (tdDates) {
+      tdDates.textContent = entry !== undefined ? datesByDiscount[entry].join('-') : '';
     }
 
     // Channel cells: show checkbox ONLY if this row has a summary chip
@@ -639,8 +642,8 @@ document.getElementById('btn-imprimir').addEventListener('click', () => {
     { h: 'Cortesia',         w: 13 },
     { h: 'Desconto',         w: 13 },
     { h: '',                 w:  3 },  // spacer
-    { h: 'Desc. Aplicado',   w: 20 },
-    { h: 'Qtd',              w:  8 },
+    { h: 'Desc. Aplicado',   w: 14 },
+    { h: 'Datas',            w: 30 },
     { h: 'Booking',          w: 20 },
     { h: 'Decolar',          w: 20 },
     { h: 'Expedia',          w: 20 },
@@ -657,14 +660,16 @@ document.getElementById('btn-imprimir').addEventListener('click', () => {
   const QTY_COL     = 10;
   const CHAN_START  = 11;
 
-  // Build summary data (same as renderSummary)
-  const counts = {};
+  // Build summary data (same logic as renderSummary)
+  const datesByDiscount = {};
   currentRows.forEach(r => {
     const d = calcDiscount(r.villa, r.cortesia);
     if (d === null || d === 0) return;
-    counts[d] = (counts[d] || 0) + 1;
+    if (!datesByDiscount[d]) datesByDiscount[d] = [];
+    const match = String(r.data).match(/^(\d{2}\/\d{2})/);
+    datesByDiscount[d].push(match ? match[1] : r.data);
   });
-  const sorted = Object.keys(counts).map(Number).sort((a, b) => a - b);
+  const sorted = Object.keys(datesByDiscount).map(Number).sort((a, b) => a - b);
 
   // Build table body
   const head = [colDefs.map(c => c.h)];
@@ -690,7 +695,7 @@ document.getElementById('btn-imprimir').addEventListener('click', () => {
       fmtDiscount(disc),
       '',  // spacer
       summEntry !== undefined ? `-${summEntry}%` : '',
-      summEntry !== undefined ? String(counts[summEntry]) : '',
+      summEntry !== undefined ? datesByDiscount[summEntry].join('-') : '',
       ...chanCells,
     ];
   });
