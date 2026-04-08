@@ -1,4 +1,4 @@
-# 📰 Journal do Villa Park Hotel Recife
+# 📰 Jornal do Villa Park Hotel Recife
 
 Site de jornal diário interno do Villa Park Hotel Recife, hospedado no GitHub Pages.
 
@@ -38,7 +38,7 @@ https://SEU_USERNAME.github.io/villa-park-journal/
 
 | Painel | URL | Utilizador | Palavra-passe |
 |--------|-----|-----------|---------------|
-| Admin | `/admin/` | admin | admin |
+| Admin  | `/admin/`  | admin  | admin  |
 | Sergio | `/sergio/` | SERGIO | SERGIO |
 
 ---
@@ -50,6 +50,7 @@ villa-park-journal/
 │
 ├── index.html                  # Página principal (jornal público)
 ├── style.css                   # Estilos do jornal
+├── darkmode.js                 # ★ Modo escuro — partilhado por todas as páginas
 ├── news.js                     # Carregamento de notícias (lê data/news.json)
 ├── README.md                   # Esta documentação
 │
@@ -77,37 +78,53 @@ villa-park-journal/
 
 ---
 
+## 🌙 Modo Escuro
+
+Todas as páginas do site têm um botão de alternância de tema fixo no **canto inferior esquerdo** do ecrã.
+
+- **Ícone sol ☀** (aparece em cima do botão) → modo escuro **ativo** — clique para desativar
+- **Ícone lua 🌙** → modo claro **ativo** — clique para ativar o modo escuro
+- A preferência é guardada automaticamente no browser (`localStorage`) e é mantida ao navegar entre páginas e ao fechar/reabrir o site
+- As cores usadas são as mesmas cores da marca do hotel, reorganizadas para conforto visual nocturno
+
+---
+
 ## 📊 Painel Sergio — Como usar
 
 O painel de Sergio é a ferramenta de gestão de preços e ocupação do hotel.
 
 ### Importar ficheiro
 1. Acesse `/sergio/` e faça login com `SERGIO` / `SERGIO`
-2. Clique no quadrado de importação e selecione o ficheiro `.xls` / `.xlsx` exportado pelo software do hotel
-3. O sistema detecta automaticamente as colunas **Data**, **RN** e **%** (ocupação), bem como o nome do hotel e filtro
+2. Clique no quadrado de importação e selecione o ficheiro `.xls` / `.xlsx` exportado pelo software do hotel (Desbravador)
+3. O sistema detecta automaticamente as colunas **Data**, **RN** e **%** de ocupação
+4. As linhas `Data atual (Caixa)`, `Previsão` e tudo a partir de `Total` são ignoradas automaticamente
 
 ### Preencher preços
 - Na coluna **Villa**: escreva o preço do quarto Villa Park para cada data
 - Na coluna **Cortesia**: escreva o preço do concorrente para a mesma data
-- Se não houver valor disponível (ocupação = 100%), deixe em branco — aparecerá como `--`
+- Se não houver valor disponível (ocupação 100%), deixe em branco → aparece como `--`
 
 ### Calcular descontos
 - A coluna **Desconto** calcula automaticamente ao digitar
-- O desconto é o múltiplo de 5% mínimo para que o preço Villa fique abaixo do concorrente
+- Mostra o múltiplo de 5% mínimo para que o preço Villa fique abaixo do concorrente
 - Cada linha é colorida conforme o nível de desconto necessário
 
 ### Colunas -1 (histórico)
-- **Villa -1** e **Cortesia -1** mostram os valores introduzidos na sessão anterior
-- Estes valores são guardados localmente no navegador após clicar em **Compilar**
+- **Villa -1** e **Cortesia -1** mostram os valores da sessão anterior para a mesma data
+- Estes valores são guardados localmente no browser após clicar em **Compilar**
+
+### Bloco da direita (separado pelo divisor visual)
+- **Desconto Aplicado**: chip colorido por nível de desconto (um por linha, sorted crescente)
+- **Datas**: datas no formato `dd/mm-dd/mm-...` que têm esse nível de desconto
+- **Booking / Decolar / Expedia / Omnibees**: checkboxes aparecem apenas nas linhas com desconto ativo; no PDF marcado → "OK", desmarcado → vazio
 
 ### Compilar
-- Clique **Compilar** para guardar os dados da sessão atual
-- Os valores de Villa e Cortesia ficam memorizados para a próxima importação
+- Guarda os valores actuais de Villa e Cortesia para a **próxima** importação
+- Não altera o que está visível no ecrã actual
 
 ### Imprimir
-- Clique **Imprimir** para gerar um PDF em formato paisagem (A4)
-- O PDF inclui a tabela completa + resumo dos descontos por categoria
-- As colunas Booking / Decolar / Expedia / Omnibees ficam em branco para preenchimento manual após impressão
+- Gera PDF A4 paisagem (uma página)
+- Checkboxes marcados aparecem como "OK" no PDF
 
 ---
 
