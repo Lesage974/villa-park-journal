@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Sergio — Journal do Villa Park</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>if(typeof pdfjsLib!=='undefined') pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <link rel="stylesheet" href="sergio.css" />
+  <script src="../darkmode.js"></script>
+</head>
+<body>
+
+<!-- ==================== LOGIN ==================== -->
+<div id="login-screen" class="login-screen">
+  <div class="login-card">
+    <img src="../assets/logo.png" alt="Villa Park Hotel" class="login-logo" />
+    <h1 class="login-title">Painel de Sergio</h1>
+    <p class="login-sub">Gestão de Preços &amp; Ocupação</p>
+    <div class="login-form">
+      <div class="form-group">
+        <label>Utilizador</label>
+        <input type="text" id="login-user" placeholder="SERGIO" autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label>Palavra-passe</label>
+        <input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password" />
+      </div>
+      <div id="login-error" class="login-error"></div>
+      <button class="btn-login" id="btn-do-login">Entrar</button>
+    </div>
+    <a href="../index.html" class="back-link">← Voltar ao Journal</a>
+  </div>
+</div>
+
+<!-- ==================== MAIN PANEL ==================== -->
+<div id="sergio-panel" style="display:none;">
+
+  <header class="s-header">
+    <div class="s-header-inner">
+      <div class="s-brand">
+        <img src="../assets/logo.png" alt="Villa Park Hotel" class="s-logo" />
+        <div>
+          <div class="s-tabs">
+            <button class="s-tab active" id="tab-btn-gestao" onclick="switchTab('gestao')">Gestão de Preços &amp; Ocupação</button>
+            <button class="s-tab" id="tab-btn-empresa" onclick="switchTab('empresa')">Identificação de Empresa</button>
+          </div>
+          <div class="s-subtitle">Painel de Sergio — Journal do Villa Park</div>
+        </div>
+      </div>
+      <div class="s-nav">
+        <a href="../index.html" class="btn-ghost">Ver Journal</a>
+        <button class="btn-ghost" id="btn-logout">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="s-main">
+
+  <!-- ===== TAB: GESTÃO DE PREÇOS ===== -->
+  <div id="tab-gestao">
+
+    <!-- IMPORT -->
+    <div class="import-section">
+      <div class="import-card" id="import-zone" onclick="document.getElementById('file-xlsx').click()">
+        <div class="import-icon">
+          <svg width="44" height="44" viewBox="0 0 48 48" fill="none">
+            <rect x="1" y="1" width="46" height="46" rx="4" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="24" y1="12" x2="24" y2="36" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="12" y1="24" x2="36" y2="24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="import-text" id="import-text">Clique para importar ficheiro Excel</div>
+        <div class="import-formats">.xls &nbsp;·&nbsp; .xlsx &nbsp;·&nbsp; .csv</div>
+      </div>
+      <input type="file" id="file-xlsx" accept=".xls,.xlsx,.csv" style="display:none" />
+      <div id="import-status" class="import-status"></div>
+    </div>
+
+    <!-- TABLE SECTION -->
+    <div id="table-section" style="display:none;">
+      <div class="table-meta" id="table-meta"></div>
+
+      <div class="table-scroll-wrap">
+        <table class="occ-table" id="occ-table">
+          <thead>
+            <tr>
+              <!-- LEFT BLOCK -->
+              <th class="th-data">Data</th>
+              <th class="th-rn">RN</th>
+              <th class="th-pct">%</th>
+              <th class="th-prev">Villa -1</th>
+              <th class="th-prev">Cortesia -1</th>
+              <th class="th-input">Villa</th>
+              <th class="th-input">Cortesia</th>
+              <th class="th-desconto">Desconto</th>
+              <!-- VISUAL SEPARATOR — color boundary -->
+              <th class="th-spacer"></th>
+              <!-- RIGHT BLOCK -->
+              <th class="th-desc-sum">Desconto Aplicado</th>
+              <th class="th-dates">Datas</th>
+              <th class="th-channel">Booking</th>
+              <th class="th-channel">Decolar</th>
+              <th class="th-channel">Expedia</th>
+              <th class="th-channel">Omnibees</th>
+            </tr>
+          </thead>
+          <tbody id="occ-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn-compilar" id="btn-compilar">⚙&nbsp; Compilar</button>
+        <button class="btn-imprimir" id="btn-imprimir">🖨&nbsp; Imprimir</button>
+        <div id="compilar-status" class="compilar-status"></div>
+      </div>
+    </div>
+
+  </div><!-- /tab-gestao -->
+
+  <!-- ===== TAB: IDENTIFICAÇÃO DE EMPRESA ===== -->
+  <div id="tab-empresa" style="display:none;">
+
+    <div class="empresa-import-section">
+
+      <!-- Import Box 1: RELATORIO CHECKIN -->
+      <div class="empresa-import-card" id="ei-zone-1" onclick="document.getElementById('ei-file-1').click()">
+        <div class="import-icon">
+          <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+            <rect x="1" y="1" width="46" height="46" rx="4" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="24" y1="12" x2="24" y2="36" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="12" y1="24" x2="36" y2="24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="empresa-import-label">RELATORIO_CHECKIN</div>
+        <div class="empresa-import-hint" id="ei-hint-1">Clique para importar</div>
+        <div class="import-formats">.pdf</div>
+      </div>
+      <input type="file" id="ei-file-1" accept=".pdf" style="display:none" />
+
+      <!-- Import Box 2: FICHA RAZOES -->
+      <div class="empresa-import-card" id="ei-zone-2" onclick="document.getElementById('ei-file-2').click()">
+        <div class="import-icon">
+          <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+            <rect x="1" y="1" width="46" height="46" rx="4" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="24" y1="12" x2="24" y2="36" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="12" y1="24" x2="36" y2="24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="empresa-import-label">FICHA_RAZOES</div>
+        <div class="empresa-import-hint" id="ei-hint-2">Clique para importar</div>
+        <div class="import-formats">.pdf</div>
+      </div>
+      <input type="file" id="ei-file-2" accept=".pdf" style="display:none" />
+
+      <!-- Import Box 3: DADOS ENFE -->
+      <div class="empresa-import-card" id="ei-zone-3" onclick="document.getElementById('ei-file-3').click()">
+        <div class="import-icon">
+          <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+            <rect x="1" y="1" width="46" height="46" rx="4" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="24" y1="12" x2="24" y2="36" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="12" y1="24" x2="36" y2="24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="empresa-import-label">DADOS_ENFE</div>
+        <div class="empresa-import-hint" id="ei-hint-3">Clique para importar</div>
+        <div class="import-formats">.xls · .xlsx</div>
+      </div>
+      <input type="file" id="ei-file-3" accept=".xls,.xlsx" style="display:none" />
+
+    </div><!-- /empresa-import-section -->
+
+    <div id="ei-status" class="import-status" style="margin:10px 0 14px;"></div>
+
+    <div class="action-bar">
+      <button class="btn-compilar" id="btn-gerar">📄&nbsp; Gerar Relatório</button>
+      <div id="ei-compilar-status" class="compilar-status"></div>
+    </div>
+
+    <!-- Preview table (shown after processing) -->
+    <div id="ei-preview" style="display:none; margin-top:20px;">
+      <div class="table-meta" id="ei-preview-meta"></div>
+      <div class="table-scroll-wrap">
+        <table class="occ-table" id="ei-table">
+          <thead>
+            <tr>
+              <th style="min-width:140px;text-align:left;">CNPJ</th>
+              <th style="min-width:220px;text-align:left;">Empresa</th>
+              <th style="min-width:200px;text-align:left;">E-mail</th>
+              <th style="min-width:180px;text-align:left;">Hóspede</th>
+              <th style="min-width:90px;">Check-in</th>
+              <th style="min-width:90px;">Check-out</th>
+              <th style="min-width:80px;">Reserva</th>
+              <th style="min-width:80px;">Diária R$</th>
+            </tr>
+          </thead>
+          <tbody id="ei-tbody"></tbody>
+        </table>
+      </div>
+      <div class="action-bar" style="margin-top:12px;">
+        <button class="btn-imprimir" id="btn-ei-pdf">🖨&nbsp; Exportar PDF</button>
+      </div>
+    </div>
+
+  </div><!-- /tab-empresa -->
+
+  </main>
+</div><!-- /sergio-panel -->
+
+<script>
+// ================================================================
+//  COLOR MAP  (only for real discounts > 0)
+// ================================================================
+const DISCOUNT_COLORS = {
+  5:  { bg: '#F3E5F5', text: '#4A148C' },
+  10: { bg: '#E3F2FD', text: '#0D47A1' },
+  15: { bg: '#FFF8E1', text: '#F57F17' },
+  20: { bg: '#FFF3E0', text: '#E65100' },
+  25: { bg: '#FCE4EC', text: '#880E4F' },
+  30: { bg: '#FFEBEE', text: '#B71C1C' },
+  35: { bg: '#E8EAF6', text: '#1A237E' },
+  40: { bg: '#E0F2F1', text: '#004D40' },
+  45: { bg: '#F9FBE7', text: '#33691E' },
+  50: { bg: '#ECEFF1', text: '#263238' },
+};
+const COLOR_NEUTRAL = { bg: '#FAFAFA', text: '#9E9E9E' }; // no data
+const COLOR_OK      = { bg: '#E8F5E9', text: '#2E7D32' }; // 0% — no discount needed
+
+function getColor(disc) {
+  if (disc === null) return COLOR_NEUTRAL;
+  if (disc === 0)    return COLOR_OK;
+  return DISCOUNT_COLORS[disc] || COLOR_NEUTRAL;
+}
+
+// ================================================================
+//  DISCOUNT CALC  — smallest multiple of 5 so Villa*(1-d%) < Cortesia
+// ================================================================
+function calcDiscount(villa, cortesia) {
+  if (villa === null || cortesia === null) return null;
+  if (villa <= 0) return null;
+  if (villa < cortesia) return 0;
+  for (let d = 5; d <= 50; d += 5) {
+    if (villa * (1 - d / 100) < cortesia) return d;
+  }
+  return 50;
+}
+
+// ================================================================
+//  PERSISTENT STORAGE  (localStorage, keyed by date string)
+// ================================================================
+const STORAGE_KEY = 'sergio_prices_v3';
+
+function loadSaved() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch { return {}; }
+}
+
+function mergeAndSave(rows) {
+  const existing = loadSaved();
+  rows.forEach(r => { existing[r.data] = { villa: r.villa, cortesia: r.cortesia }; });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+}
+
+// ================================================================
+//  LOGIN
+// ================================================================
+document.getElementById('btn-do-login').addEventListener('click', doLogin);
+['login-user', 'login-pass'].forEach(id =>
+  document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); })
+);
+document.getElementById('btn-logout').addEventListener('click', () => {
+  sessionStorage.removeItem('sergio-auth');
+  location.reload();
+});
+if (sessionStorage.getItem('sergio-auth') === '1') showPanel();
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim().toUpperCase();
+  const p = document.getElementById('login-pass').value.trim().toUpperCase();
+  const err = document.getElementById('login-error');
+  if (u === 'SERGIO' && p === 'SERGIO') {
+    sessionStorage.setItem('sergio-auth', '1');
+    showPanel();
+  } else {
+    err.textContent = 'Credenciais inválidas.';
+    err.style.display = 'block';
+  }
+}
+function showPanel() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('sergio-panel').style.display = 'block';
+}
+
+// ================================================================
+//  FILE IMPORT
+// ================================================================
+document.getElementById('file-xlsx').addEventListener('change', function () {
+  const file = this.files[0];
+  if (!file) return;
+  document.getElementById('import-text').textContent = file.name;
+  document.getElementById('import-zone').classList.add('has-file');
+  const reader = new FileReader();
+  reader.onload = e => parseExcel(e.target.result, file.name);
+  reader.readAsArrayBuffer(file);
+});
+
+// ================================================================
+//  ROW FILTER
+//  Rules (applied to the value in the "Data" column of each row):
+//  1. Skip blank rows entirely.
+//  2. Skip rows whose Data cell starts with any of SKIP_EXACT keywords.
+//  3. Once a row starting with "Total" is seen, stop processing — all
+//     subsequent rows are discarded (pastTotal flag).
+// ================================================================
+const SKIP_EXACT = [
+  'data atual',   // "Data atual (Caixa)"
+  'previsão',     // with accent
+  'previsao',     // without accent (defensive)
+  'villa park',   // hotel name header row
+  'filtro',       // filter label row
+  'histórico',    // report title row
+  'pagina',       // "Página:"
+  'página',
+  'data',         // the column header row itself
+];
+
+function shouldSkipRow(cellStr, state) {
+  const s = cellStr.toLowerCase().trim();
+  if (!s) return true;                                  // blank
+  if (s.startsWith('total')) { state.pastTotal = true; return true; } // Total line → stop
+  if (state.pastTotal) return true;                     // everything after Total
+  if (SKIP_EXACT.some(k => s.startsWith(k))) return true;
+  // Skip rows that are clearly not date rows:
+  // A date row from this software always starts with dd/mm
+  if (!/^\d{2}\/\d{2}/.test(cellStr.trim())) return true;
+  return false;
+}
+
+// ================================================================
+//  EXCEL PARSING
+//  Your file structure (from binary inspection):
+//  Row 0:  "VILLA PARK HOTEL RECIFE"
+//  Row 1:  "Histórico e previsão de movimentação"
+//  Row 2:  "Filtro: ..."
+//  Row 3:  merged header: Ocupação | Previsto | Efetivo | ...
+//  Row 4:  sub-header: Data | RN | % | Uso Casa | Cortesia | ...
+//  Row 5:  "Data atual (Caixa)"  ← SKIP
+//  Row 6:  "02/04/26 qui"        ← first data row
+//  ...
+//  Row N:  "Previsão"            ← SKIP
+//  Row N+1: "03/04/26 sex"       ← data resumes
+//  ...
+//  Row M:  "Total"               ← STOP, skip this and everything after
+// ================================================================
+function parseExcel(buffer, filename) {
+  const status = document.getElementById('import-status');
+  try {
+    const wb = XLSX.read(buffer, { type: 'arraybuffer', cellText: true, cellDates: false });
+    const ws  = wb.Sheets[wb.SheetNames[0]];
+    const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
+
+    let hotelName = '', filterLabel = '';
+    let colData = -1, colRN = -1, colPct = -1;
+    let headerRowIdx = -1;
+
+    // ---- Pass 1: find metadata and header row ----
+    for (let r = 0; r < raw.length; r++) {
+      const row = raw[r];
+      const first = String(row[0] || '').trim();
+      const firstLc = first.toLowerCase();
+
+      if (firstLc.includes('villa park hotel')) { hotelName = first; continue; }
+      if (firstLc.startsWith('filtro'))          { filterLabel = first; continue; }
+
+      // Find the sub-header row that has "Data" and "RN"
+      const rowLc = row.map(c => String(c).toLowerCase().trim());
+      const di  = rowLc.findIndex(c => c === 'data');
+      const rni = rowLc.findIndex(c => c === 'rn');
+      if (di >= 0 && rni >= 0) {
+        headerRowIdx = r;
+        colData = di;
+        colRN   = rni;
+        // % is the column right after RN
+        // In the file it's the occupation %, usually colRN + 1
+        colPct  = rowLc.findIndex((c, i) => i > rni && (c === '%' || c.includes('%')));
+        if (colPct === -1) colPct = rni + 1; // fallback
+        break;
+      }
+    }
+
+    // If we couldn't find the sub-header, try a looser search
+    if (headerRowIdx === -1) {
+      for (let r = 0; r < raw.length; r++) {
+        const rowLc = raw[r].map(c => String(c).toLowerCase().trim());
+        const di = rowLc.findIndex(c => c === 'data');
+        if (di >= 0) {
+          // Look for RN in nearby columns
+          const rni = rowLc.findIndex(c => c === 'rn');
+          if (rni >= 0) {
+            headerRowIdx = r; colData = di; colRN = rni; colPct = rni + 1;
+            break;
+          }
+        }
+      }
+    }
+
+    if (headerRowIdx === -1 || colData === -1) {
+      status.textContent = '⚠ Não foi possível detectar as colunas. Verifique o ficheiro.';
+      status.className = 'import-status error';
+      return;
+    }
+
+    // ---- Pass 2: extract data rows ----
+    const saved = loadSaved();
+    const rows  = [];
+    const state = { pastTotal: false };
+
+    for (let r = headerRowIdx + 1; r < raw.length; r++) {
+      const row      = raw[r];
+      const cellStr  = String(row[colData] || '').trim();
+
+      if (shouldSkipRow(cellStr, state)) continue;
+      if (state.pastTotal) break; // stop completely once Total hit
+
+      const rn  = String(row[colRN]  || '').trim().replace('.', ',');
+      const pct = String(row[colPct] || '').trim().replace('.', ',');
+
+      // Normalize date: "02/04/26 qui" — keep as-is, it's the key
+      const dateKey = cellStr;
+      const prev    = saved[dateKey] || {};
+
+      rows.push({
+        data:          dateKey,
+        rn:            rn  || '--',
+        pct:           pct || '--',
+        villa_prev:    prev.villa    !== undefined ? prev.villa    : null,
+        cortesia_prev: prev.cortesia !== undefined ? prev.cortesia : null,
+        villa:         null,
+        cortesia:      null,
+        checks:        { Booking: false, Decolar: false, Expedia: false, Omnibees: false },
+      });
+    }
+
+    if (rows.length === 0) {
+      status.textContent = '⚠ Nenhuma linha de dados encontrada. Verifique o ficheiro.';
+      status.className = 'import-status error';
+      return;
+    }
+
+    status.textContent = `✓ ${rows.length} linhas importadas de "${filename}"`;
+    status.className = 'import-status ok';
+
+    document.getElementById('table-meta').innerHTML = [
+      hotelName   ? `<strong>${hotelName}</strong>`  : '',
+      filterLabel ? `<em>${filterLabel}</em>`        : '',
+    ].filter(Boolean).join(' &nbsp;·&nbsp; ');
+
+    renderTable(rows);
+    document.getElementById('table-section').style.display = 'block';
+
+  } catch (err) {
+    status.textContent = '⚠ Erro ao ler ficheiro: ' + err.message;
+    status.className = 'import-status error';
+    console.error(err);
+  }
+}
+
+// ================================================================
+//  TABLE RENDER
+// ================================================================
+let currentRows = [];
+const CHANNELS = ['Booking', 'Decolar', 'Expedia', 'Omnibees'];
+
+function renderTable(rows) {
+  currentRows = rows;
+  const tbody = document.getElementById('occ-tbody');
+  tbody.innerHTML = '';
+
+  rows.forEach((row, i) => {
+    const disc  = calcDiscount(row.villa, row.cortesia);
+    const color = getColor(disc);
+    const tr    = document.createElement('tr');
+    tr.dataset.idx = i;
+    tr.className = 'data-row';
+
+    // ---- LEFT BLOCK: cells get inline bg color ----
+    function colorTd(html, cls) {
+      const el = document.createElement('td');
+      el.className = cls;
+      el.innerHTML = html;
+      el.style.backgroundColor = color.bg;
+      return el;
+    }
+
+    tr.appendChild(colorTd(escHtml(row.data),          'td-data'));
+    tr.appendChild(colorTd(escHtml(row.rn),             'td-rn'));
+    tr.appendChild(colorTd(escHtml(row.pct),            'td-pct'));
+    tr.appendChild(colorTd(fmtPrev(row.villa_prev),     'td-prev'));
+    tr.appendChild(colorTd(fmtPrev(row.cortesia_prev),  'td-prev'));
+
+    // Villa input
+    const tdV = colorTd('', 'td-input');
+    tdV.appendChild(makeInput(i, 'villa', row.villa));
+    tr.appendChild(tdV);
+
+    // Cortesia input
+    const tdC = colorTd('', 'td-input');
+    tdC.appendChild(makeInput(i, 'cortesia', row.cortesia));
+    tr.appendChild(tdC);
+
+    // Desconto cell
+    const tdD = colorTd(fmtDiscount(disc), 'td-desconto');
+    tdD.dataset.discountIdx = i;
+    tdD.style.color      = color.text;
+    tdD.style.fontWeight = '700';
+    tr.appendChild(tdD);
+
+    // ---- SPACER — visual boundary ----
+    const tdSp = document.createElement('td');
+    tdSp.className = 'td-spacer';
+    tr.appendChild(tdSp);
+
+    // ---- RIGHT BLOCK: always paper bg, no color ----
+    // Desconto Aplicado chip (filled by renderSummary)
+    const tdSum = document.createElement('td');
+    tdSum.className   = 'td-desc-sum';
+    tdSum.dataset.sumIdx = i;
+    tr.appendChild(tdSum);
+
+    // Dates (filled by renderSummary)
+    const tdDates = document.createElement('td');
+    tdDates.className = 'td-dates';
+    tdDates.dataset.qtyIdx = i;
+    tr.appendChild(tdDates);
+
+    // Channel checkboxes — ONLY in right block, ONLY if this summary row has a discount
+    // Checkboxes are linked to the summary index, not the data row index
+    // We attach dataset.rowIdx so renderSummary can wire them up
+    CHANNELS.forEach(ch => {
+      const tdCh = document.createElement('td');
+      tdCh.className        = 'td-channel';
+      tdCh.dataset.channel  = ch;
+      tdCh.dataset.rowIdx   = i;
+      tr.appendChild(tdCh);
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  renderSummary();
+}
+
+function makeInput(rowIdx, field, val) {
+  const inp       = document.createElement('input');
+  inp.type        = 'text';
+  inp.inputMode   = 'decimal';
+  inp.className   = 'price-input';
+  inp.placeholder = '--';
+  if (val !== null) inp.value = val;
+  inp.addEventListener('input', () => updateRow(rowIdx, field, inp.value));
+  return inp;
+}
+
+// ================================================================
+//  UPDATE ROW on input change
+// ================================================================
+function updateRow(idx, field, rawVal) {
+  const val = parseFloat(String(rawVal).replace(',', '.'));
+  currentRows[idx][field] = isNaN(val) ? null : val;
+
+  const tbody = document.getElementById('occ-tbody');
+  const tr    = tbody.querySelector(`tr[data-idx="${idx}"]`);
+  if (!tr) return;
+
+  const row   = currentRows[idx];
+  const disc  = calcDiscount(row.villa, row.cortesia);
+  const color = getColor(disc);
+
+  // Recolor left block cells
+  tr.querySelectorAll('.td-data,.td-rn,.td-pct,.td-prev,.td-input,.td-desconto')
+    .forEach(el => { el.style.backgroundColor = color.bg; });
+
+  const tdD = tr.querySelector(`td[data-discount-idx="${idx}"]`);
+  if (tdD) {
+    tdD.textContent          = fmtDiscount(disc);
+    tdD.style.color          = color.text;
+    tdD.style.backgroundColor = color.bg;
+  }
+
+  // Right-block checkboxes are managed by renderSummary
+  renderSummary();
+}
+
+// ================================================================
+//  SUMMARY  — fills the right block columns
+//
+//  Logic:
+//  - Collect all distinct discount values > 0, sort ascending
+//  - One chip per row in the "Desconto Aplicado" column (row 0 = first discount, etc.)
+//  - The channel checkboxes belong to the RIGHT block:
+//    the row that shows a given discount chip gets checkboxes;
+//    rows that have no summary chip get empty channel cells.
+// ================================================================
+function renderSummary() {
+  const tbody = document.getElementById('occ-tbody');
+
+  // Build: discount level → array of "dd/mm" date strings (skip null and 0)
+  const datesByDiscount = {};
+  currentRows.forEach(r => {
+    const d = calcDiscount(r.villa, r.cortesia);
+    if (d === null || d === 0) return;
+    if (!datesByDiscount[d]) datesByDiscount[d] = [];
+    // Extract dd/mm from date string like "02/04/26 qui"
+    const match = String(r.data).match(/^(\d{2}\/\d{2})/);
+    datesByDiscount[d].push(match ? match[1] : r.data);
+  });
+
+  // Sorted ascending
+  const sorted = Object.keys(datesByDiscount).map(Number).sort((a, b) => a - b);
+
+  // Distribute chips across tbody rows (row 0 = sorted[0], etc.)
+  const trs = Array.from(tbody.querySelectorAll('tr.data-row'));
+
+  trs.forEach((tr, rowPos) => {
+    const tdSum   = tr.querySelector('.td-desc-sum');
+    const tdDates = tr.querySelector('.td-dates');
+
+    const entry = sorted[rowPos]; // undefined if no more discounts
+
+    // Desconto Aplicado chip
+    if (tdSum) {
+      if (entry !== undefined) {
+        const c = DISCOUNT_COLORS[entry] || COLOR_NEUTRAL;
+        tdSum.innerHTML = `<span class="sum-chip" style="background:${c.bg};color:${c.text};">-${entry}%</span>`;
+      } else {
+        tdSum.innerHTML = '';
+      }
+    }
+
+    // Dates for this discount level — "dd/mm-dd/mm-..."
+    if (tdDates) {
+      tdDates.textContent = entry !== undefined ? datesByDiscount[entry].join('-') : '';
+    }
+
+    // Channel cells: show checkbox ONLY if this row has a summary chip
+    CHANNELS.forEach(ch => {
+      const tdCh = tr.querySelector(`td.td-channel[data-channel="${ch}"]`);
+      if (!tdCh) return;
+      tdCh.innerHTML = '';
+      if (entry !== undefined) {
+        const cb      = document.createElement('input');
+        cb.type       = 'checkbox';
+        cb.className  = 'ch-check';
+        // Persist check state keyed by discount level + channel
+        const key = `${entry}_${ch}`;
+        cb.checked = (window._checkState || {})[key] || false;
+        cb.addEventListener('change', () => {
+          if (!window._checkState) window._checkState = {};
+          window._checkState[key] = cb.checked;
+        });
+        tdCh.appendChild(cb);
+      }
+    });
+  });
+}
+
+// ================================================================
+//  FORMAT HELPERS
+// ================================================================
+function fmtDiscount(disc) {
+  if (disc === null) return '--';
+  if (disc === 0)    return '--';  // 0% shows as -- (no discount needed)
+  return '-' + disc + '%';
+}
+
+function fmtPrev(val) {
+  if (val === null || val === undefined) return '<span class="dim">--</span>';
+  return String(val);
+}
+
+function escHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ================================================================
+//  COMPILAR — saves villa/cortesia for next import session
+//             does NOT change what is currently shown on screen
+// ================================================================
+document.getElementById('btn-compilar').addEventListener('click', () => {
+  mergeAndSave(currentRows);
+  const st = document.getElementById('compilar-status');
+  st.textContent = '✓ Guardado. Os valores serão exibidos em Villa -1 / Cortesia -1 na próxima importação.';
+  st.className   = 'compilar-status ok';
+  setTimeout(() => { st.textContent = ''; }, 6000);
+});
+
+// ================================================================
+//  IMPRIMIR — single-page landscape PDF
+// ================================================================
+document.getElementById('btn-imprimir').addEventListener('click', () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+  const PAGE_W  = 297;
+  const MARGIN  = 8;
+  const USABLE  = PAGE_W - MARGIN * 2;
+
+  // Title block
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Villa Park Hotel Recife — Gestão de Ocupação & Preços', MARGIN, 10);
+
+  const metaTxt = document.getElementById('table-meta')?.innerText?.trim();
+  let startY = 15;
+  if (metaTxt) {
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.text(metaTxt, MARGIN, startY);
+    startY += 4;
+  }
+  doc.setFontSize(6.5);
+  doc.text('Impresso: ' + new Date().toLocaleString('pt-BR'), MARGIN, startY);
+  startY += 3;
+
+  // Column widths (raw, will be scaled to USABLE)
+  const colDefs = [
+    { h: 'Data',             w: 22 },
+    { h: 'RN',               w:  8 },
+    { h: '%',                w:  8 },
+    { h: 'Villa -1',         w: 13 },
+    { h: 'Cortesia -1',      w: 13 },
+    { h: 'Villa',            w: 13 },
+    { h: 'Cortesia',         w: 13 },
+    { h: 'Desconto',         w: 13 },
+    { h: '',                 w:  3 },  // spacer
+    { h: 'Desc. Aplicado',   w: 14 },
+    { h: 'Datas',            w: 30 },
+    { h: 'Booking',          w: 20 },
+    { h: 'Decolar',          w: 20 },
+    { h: 'Expedia',          w: 20 },
+    { h: 'Omnibees',         w: 20 },
+  ];
+
+  const totalRaw = colDefs.reduce((s, c) => s + c.w, 0);
+  const scale    = USABLE / totalRaw;
+  colDefs.forEach(c => { c.w = Math.round(c.w * scale * 10) / 10; });
+
+  const DISC_COL    = 7;
+  const SPACER_COL  = 8;
+  const SUM_COL     = 9;
+  const QTY_COL     = 10;
+  const CHAN_START  = 11;
+
+  // Build summary data (same logic as renderSummary)
+  const datesByDiscount = {};
+  currentRows.forEach(r => {
+    const d = calcDiscount(r.villa, r.cortesia);
+    if (d === null || d === 0) return;
+    if (!datesByDiscount[d]) datesByDiscount[d] = [];
+    const match = String(r.data).match(/^(\d{2}\/\d{2})/);
+    datesByDiscount[d].push(match ? match[1] : r.data);
+  });
+  const sorted = Object.keys(datesByDiscount).map(Number).sort((a, b) => a - b);
+
+  // Build table body
+  const head = [colDefs.map(c => c.h)];
+  const body = currentRows.map((row, ri) => {
+    const disc       = calcDiscount(row.villa, row.cortesia);
+    const summEntry  = sorted[ri];   // discount chip for this row position
+
+    // Channel "OK" / '' — based on right-block checkbox state
+    const chanCells = CHANNELS.map(ch => {
+      if (summEntry === undefined) return '';
+      const key = `${summEntry}_${ch}`;
+      return (window._checkState || {})[key] ? 'OK' : '';
+    });
+
+    return [
+      row.data,
+      row.rn,
+      row.pct,
+      row.villa_prev    !== null ? String(row.villa_prev)    : '--',
+      row.cortesia_prev !== null ? String(row.cortesia_prev) : '--',
+      row.villa    !== null ? String(row.villa)    : '',
+      row.cortesia !== null ? String(row.cortesia) : '',
+      fmtDiscount(disc),
+      '',  // spacer
+      summEntry !== undefined ? `-${summEntry}%` : '',
+      summEntry !== undefined ? datesByDiscount[summEntry].join('-') : '',
+      ...chanCells,
+    ];
+  });
+
+  doc.autoTable({
+    head,
+    body,
+    startY,
+    margin:     { left: MARGIN, right: MARGIN },
+    tableWidth: USABLE,
+    styles: {
+      fontSize:    6,
+      cellPadding: 1,
+      font:        'helvetica',
+      valign:      'middle',
+      halign:      'center',
+      overflow:    'linebreak',
+    },
+    headStyles: {
+      fillColor:  [13, 61, 46],
+      textColor:  [240, 223, 160],
+      fontStyle:  'bold',
+      fontSize:   5.5,
+    },
+    columnStyles: Object.fromEntries(colDefs.map((c, i) => [i, { cellWidth: c.w }])),
+    pageBreak:    'avoid',
+    rowPageBreak: 'avoid',
+
+    didParseCell(data) {
+      if (data.section !== 'body') return;
+      const ci  = data.column.index;
+      const ri  = data.row.index;
+      const row = currentRows[ri];
+      if (!row) return;
+
+      // LEFT BLOCK — apply row discount color
+      if (ci <= DISC_COL) {
+        const disc  = calcDiscount(row.villa, row.cortesia);
+        const color = getColor(disc);
+        const bg    = hexToRgb(color.bg);
+        if (bg) data.cell.styles.fillColor = [bg.r, bg.g, bg.b];
+        if (ci === DISC_COL) {
+          const fg = hexToRgb(color.text);
+          if (fg) data.cell.styles.textColor = [fg.r, fg.g, fg.b];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+
+      // SPACER
+      if (ci === SPACER_COL) {
+        data.cell.styles.fillColor = [200, 184, 136];
+      }
+
+      // Desconto Aplicado chip color
+      if (ci === SUM_COL && data.cell.text[0]) {
+        const d  = parseInt(data.cell.text[0].replace('-', '').replace('%', ''));
+        const sc = DISCOUNT_COLORS[d];
+        if (sc) {
+          const bg = hexToRgb(sc.bg);
+          const fg = hexToRgb(sc.text);
+          if (bg) data.cell.styles.fillColor = [bg.r, bg.g, bg.b];
+          if (fg) data.cell.styles.textColor = [fg.r, fg.g, fg.b];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+    },
+  });
+
+  const today = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+  doc.save(`villa-park-ocupacao-${today}.pdf`);
+});
+
+// ================================================================
+//  UTILS
+// ================================================================
+//  TAB SWITCHING
+// ================================================================
+function switchTab(tab) {
+  document.getElementById('tab-gestao').style.display  = tab === 'gestao'  ? 'block' : 'none';
+  document.getElementById('tab-empresa').style.display = tab === 'empresa' ? 'block' : 'none';
+  document.getElementById('tab-btn-gestao').classList.toggle('active',  tab === 'gestao');
+  document.getElementById('tab-btn-empresa').classList.toggle('active', tab === 'empresa');
+}
+
+// ================================================================
+//  EMPRESA TAB — file state
+// ================================================================
+const eiFiles = { 1: null, 2: null, 3: null };  // checkin PDF, razoes PDF, enfe XLS
+
+[1,2,3].forEach(n => {
+  document.getElementById(`ei-file-${n}`).addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    eiFiles[n] = file;
+    document.getElementById(`ei-zone-${n}`).classList.add('has-file');
+    document.getElementById(`ei-hint-${n}`).textContent = file.name;
+  });
+});
+
+// ================================================================
+//  EMPRESA TAB — PDF parsing helpers
+// ================================================================
+
+// Parse RELATORIO CHECKIN PDF
+// Keeps only rows where Empresa is empty or "BOOKING COM"
+// Returns array of {apto, hospede, checkin, checkout, reserva, diaria}
+async function parseCheckinPDF(file) {
+  const text = await extractPDFText(file);
+  const rows = [];
+
+  // Split into logical lines
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+  // The RELATORIO CHECKIN has a fixed-width layout per page:
+  // Apto | Hóspede | Empresa | Entrada | Saída | Pax | Free | Reserva | Diária $ | Func.in | Func.out
+  // We need to find data lines: start with room number (numeric, 1-4 digits)
+  // Strategy: concatenate all text and look for the repeating pattern
+
+  // Build full text block, removing page headers
+  const fullText = lines.join(' ');
+
+  // Match data rows: room number followed by guest name, then possibly company, then dates
+  // Pattern: (room) (NAME words) (optional COMPANY) (dd/mm/yy HH:MM) (dd/mm/yy HH:MM) (digits) (digits) (reserva) (diaria) ...
+  // We'll use a different approach: find lines that start with a room number
+
+  // Collect raw data lines (lines that begin with a 1-4 digit room number)
+  const dataLines = [];
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    // Room number at start: 1-4 digits, possibly followed by space
+    if (/^\d{1,4}\s+[A-ZÁÉÍÓÚÀÂÊÎÔÛÃÕÇ]/.test(l)) {
+      dataLines.push(l);
+    }
+  }
+
+  // Parse each data line
+  for (const line of dataLines) {
+    // Extract the room number
+    const roomMatch = line.match(/^(\d{1,4})\s+/);
+    if (!roomMatch) continue;
+    const apto = roomMatch[1];
+
+    // Extract dates: dd/mm/yy HH:MM pattern
+    const dateRx = /(\d{2}\/\d{2}\/\d{2})\s+\d{2}:\d{2}/g;
+    const dates = [];
+    let dm;
+    while ((dm = dateRx.exec(line)) !== null) dates.push(dm[1]);
+    if (dates.length < 2) continue;
+    const checkin  = dates[0];
+    const checkout = dates[1];
+
+    // Extract reserva: 5-6 digit number after dates
+    const afterDates = line.slice(line.lastIndexOf(checkout) + checkout.length + 6);
+    const resMatch = afterDates.match(/(\d{5,6})/);
+    const reserva = resMatch ? resMatch[1] : '';
+
+    // Extract diaria: decimal number (like 346,44 or 299.90) after reserva
+    const diariaMatch = afterDates.match(/\d{5,6}\s+R\s+([\d.,]+)/);
+    const diaria = diariaMatch ? diariaMatch[1] : (afterDates.match(/([\d]{2,4}[,.][\d]{2})/) || ['',''])[1];
+
+    // Extract hospede: everything between room number and first date
+    const beforeFirstDate = line.substring(roomMatch[0].length, line.indexOf(dates[0])).trim();
+    // Remove company name if present - company names tend to be all-caps multi-word known patterns
+    // We'll take all uppercase words before dates as hospede, then detect if there's a company
+    let hospede = beforeFirstDate.replace(/\s+/g, ' ').trim();
+
+    // Detect empresa: check if known company phrases appear
+    let empresa = '';
+    const knownCompanies = ['BOOKING COM', 'EXPEDIA', 'DECOLAR', 'OMNIBEES', 'CVC', 'EHTL', 'MARINGA NET',
+      'AGENCIA LUCK', 'TREND VIAGENS', 'PONTESTUR', 'SENAC', 'ANGELA TURISMO', 'VOETUR', 'FLYTOUR',
+      'SCCP', 'COOBRASTUR', 'A TRAVEL', 'G7 OPERADORA', 'QUEUTUR', 'PRIMUS', 'DECOLANDO'];
+    for (const co of knownCompanies) {
+      if (hospede.toUpperCase().includes(co)) {
+        empresa = co === 'BOOKING COM' ? 'BOOKING COM' : co;
+        hospede = hospede.substring(0, hospede.toUpperCase().indexOf(co)).trim();
+        break;
+      }
+    }
+
+    // Filter: keep only BOOKING COM or no company
+    if (empresa !== '' && empresa !== 'BOOKING COM') continue;
+
+    rows.push({ apto, hospede: hospede.trim(), checkin, checkout, reserva, diaria, empresa });
+  }
+
+  return rows;
+}
+
+// Parse FICHA RAZOES PDF — returns Map: key="apto|checkin_dd/mm" → razao number
+async function parseRazoesPDF(file) {
+  const text = await extractPDFText(file);
+  const map = new Map();
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+  // Pattern: "112687 01/07/26 NAME dd/mm/yy dd/mm ..."
+  // Then next line: "COMPANY" then "APT func"
+  // We scan for lines matching razao number (6 digits) + date + ...
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    // Razao line: starts with 6 digits, then date dd/mm/yy
+    const razaoMatch = l.match(/^(\d{6})\s+(\d{2}\/\d{2}\/\d{2})\s+(.+?)\s+(\d{2}\/\d{2}\/\d{2})\s+(\d{2}\/\d{2})/);
+    if (!razaoMatch) continue;
+    const razao   = razaoMatch[1];
+    const entrada = razaoMatch[4]; // dd/mm/yy
+    const saida   = razaoMatch[5]; // dd/mm
+
+    // The room number appears on the next 2 lines (after company line)
+    // Line i+1 is company, line i+2 starts with room number
+    let apto = '';
+    if (i + 2 < lines.length) {
+      const aptLine = lines[i + 2];
+      const aptMatch = aptLine.match(/^(\d{1,4})\s+/);
+      if (aptMatch) apto = aptMatch[1];
+    }
+
+    // Extract checkin date dd/mm from entrada field
+    const checkinKey = entrada.substring(0, 5); // dd/mm
+
+    // Name from razao line
+    const hospede = razaoMatch[3].trim();
+
+    const key = `${apto}|${checkinKey}`;
+    if (!map.has(key)) {
+      map.set(key, { razao, hospede, entrada: checkinKey });
+    }
+    // Also store by razao number directly
+    map.set(`razao:${razao}`, { razao, apto, hospede, entrada: checkinKey });
+  }
+
+  return map;
+}
+
+// Parse DADOS ENFE XLS — returns Map: razao → {cgccpf, nome, email, hospede1}
+async function parseEnfeXLS(file) {
+  const map = new Map();
+  const buffer = await file.arrayBuffer();
+  const wb = XLSX.read(buffer, { type: 'arraybuffer', raw: false });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+  // Find header row
+  let colRazao = -1, colNome = -1, colEmail = -1, colCgc = -1, colHosp = -1;
+  let headerIdx = -1;
+  for (let r = 0; r < raw.length; r++) {
+    const row = raw[r].map(c => String(c).toLowerCase().trim());
+    const ri = row.findIndex(c => c === 'nrorazao');
+    if (ri >= 0) {
+      headerIdx = r;
+      colRazao = ri;
+      colNome  = row.findIndex(c => c === 'nome');
+      colEmail = row.findIndex(c => c === 'email');
+      colCgc   = row.findIndex(c => c === 'cgccpf');
+      colHosp  = row.findIndex(c => c === 'hospede1');
+      break;
+    }
+  }
+
+  if (headerIdx === -1) return map;
+
+  for (let r = headerIdx + 1; r < raw.length; r++) {
+    const row = raw[r];
+    const razaoRaw = String(row[colRazao] || '').trim().replace('.0','');
+    if (!razaoRaw) continue;
+    const razao = razaoRaw.replace(/\.0$/, '');
+    map.set(razao, {
+      cgccpf:  String(row[colCgc]   || '').trim(),
+      nome:    String(row[colNome]  || '').trim(),
+      email:   String(row[colEmail] || '').trim(),
+      hospede: String(row[colHosp]  || '').trim(),
+    });
+  }
+  return map;
+}
+
+// Generic PDF text extractor using pdf.js (loaded from CDN in script tag below)
+async function extractPDFText(file) {
+  const buffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+  let text = '';
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const page = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    // Reconstruct lines preserving spacing
+    const items = content.items;
+    let lastY = null;
+    for (const item of items) {
+      if (lastY !== null && Math.abs(item.transform[5] - lastY) > 3) {
+        text += '\n';
+      }
+      text += item.str;
+      lastY = item.transform[5];
+    }
+    text += '\n';
+  }
+  return text;
+}
+
+// ================================================================
+//  EMPRESA TAB — GERAR RELATÓRIO
+// ================================================================
+document.getElementById('btn-gerar').addEventListener('click', async () => {
+  const status = document.getElementById('ei-compilar-status');
+  const eiStatus = document.getElementById('ei-status');
+
+  if (!eiFiles[1] || !eiFiles[2] || !eiFiles[3]) {
+    status.textContent = '⚠ Importe os 3 ficheiros antes de gerar o relatório.';
+    status.className = 'compilar-status error';
+    return;
+  }
+
+  status.textContent = '⏳ A processar documentos…';
+  status.className = 'compilar-status';
+
+  try {
+    // 1. Parse all three documents
+    status.textContent = '⏳ Lendo RELATORIO_CHECKIN…';
+    const checkinRows = await parseCheckinPDF(eiFiles[1]);
+
+    status.textContent = '⏳ Lendo FICHA_RAZOES…';
+    const razaoMap = await parseRazoesPDF(eiFiles[2]);
+
+    status.textContent = '⏳ Lendo DADOS_ENFE…';
+    const enfeMap = await parseEnfeXLS(eiFiles[3]);
+
+    status.textContent = '⏳ Cruzando dados…';
+
+    // 2. Cross-reference
+    const results = [];
+    for (const row of checkinRows) {
+      // Find razao: look up by apto + checkin date (dd/mm)
+      const checkinDDMM = row.checkin.substring(0, 5); // dd/mm
+      const key = `${row.apto}|${checkinDDMM}`;
+      const razaoEntry = razaoMap.get(key);
+      if (!razaoEntry) continue;
+
+      const razao = razaoEntry.razao;
+      // Look up in ENFE
+      const razaoNum = String(parseInt(razao));
+      const enfe = enfeMap.get(razaoNum);
+      if (!enfe) continue; // no ENFE entry → skip
+
+      results.push({
+        cgccpf:   enfe.cgccpf,
+        nome:     enfe.nome,
+        email:    enfe.email,
+        hospede:  enfe.hospede || row.hospede,
+        checkin:  row.checkin,
+        checkout: row.checkout,
+        reserva:  row.reserva,
+        diaria:   row.diaria,
+      });
+    }
+
+    // 3. Sort: by CNPJ group (first checkin of group), then by checkin within group
+    // Group by CNPJ
+    const groups = {};
+    for (const r of results) {
+      if (!groups[r.cgccpf]) groups[r.cgccpf] = [];
+      groups[r.cgccpf].push(r);
+    }
+
+    // Sort each group by checkin date
+    const parseDateBR = s => {
+      const [d, m, y] = s.split('/');
+      return new Date(`20${y}-${m}-${d}`);
+    };
+    for (const g of Object.values(groups)) {
+      g.sort((a, b) => parseDateBR(a.checkin) - parseDateBR(b.checkin));
+    }
+
+    // Sort groups by their first checkin date
+    const sortedCNPJs = Object.keys(groups).sort((a, b) => {
+      return parseDateBR(groups[a][0].checkin) - parseDateBR(groups[b][0].checkin);
+    });
+
+    const sorted = [];
+    for (const cnpj of sortedCNPJs) {
+      sorted.push(...groups[cnpj]);
+    }
+
+    if (sorted.length === 0) {
+      status.textContent = '⚠ Nenhum dado correspondido entre os 3 documentos. Verifique os ficheiros.';
+      status.className = 'compilar-status error';
+      return;
+    }
+
+    // 4. Render preview table
+    window._eiSorted = sorted; // store for PDF export
+    renderEiTable(sorted);
+
+    status.textContent = `✓ ${sorted.length} linha(s) gerada(s). Verifique abaixo e exporte em PDF.`;
+    status.className = 'compilar-status ok';
+
+  } catch (err) {
+    status.textContent = '⚠ Erro: ' + err.message;
+    status.className = 'compilar-status error';
+    console.error(err);
+  }
+});
+
+function renderEiTable(rows) {
+  const tbody = document.getElementById('ei-tbody');
+  tbody.innerHTML = '';
+
+  let lastCnpj = null;
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    // Alternate shading by CNPJ group
+    if (r.cgccpf !== lastCnpj) {
+      lastCnpj = r.cgccpf;
+    }
+    tr.style.backgroundColor = (Math.floor(i / 1) % 2 === 0) ? 'var(--row-paper)' : '';
+
+    // Group separator styling: first row of a new CNPJ gets a top border
+    const isGroupStart = (i === 0 || rows[i-1].cgccpf !== r.cgccpf);
+    if (isGroupStart) tr.style.borderTop = '2px solid var(--gold)';
+
+    const td = (txt, cls) => {
+      const el = document.createElement('td');
+      el.textContent = txt;
+      if (cls) el.className = cls;
+      return el;
+    };
+    tr.appendChild(td(r.cgccpf));
+    tr.appendChild(td(r.nome, 'td-data'));
+    tr.appendChild(td(r.email));
+    tr.appendChild(td(r.hospede, 'td-data'));
+    tr.appendChild(td(r.checkin, 'td-rn'));
+    tr.appendChild(td(r.checkout, 'td-rn'));
+    tr.appendChild(td(r.reserva, 'td-rn'));
+    tr.appendChild(td(r.diaria, 'td-rn'));
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('ei-preview-meta').textContent =
+    `${rows.length} reserva(s) · ${Object.keys(rows.reduce((a,r)=>{a[r.cgccpf]=1;return a},{})).length} empresa(s)`;
+  document.getElementById('ei-preview').style.display = 'block';
+}
+
+// ================================================================
+//  EMPRESA TAB — PDF EXPORT
+// ================================================================
+document.getElementById('btn-ei-pdf').addEventListener('click', () => {
+  const rows = window._eiSorted;
+  if (!rows || !rows.length) return;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+  const PAGE_W = 297, MARGIN = 10, USABLE = PAGE_W - MARGIN * 2;
+
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Villa Park Hotel Recife — Identificação de Empresa', MARGIN, 11);
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Impresso: ' + new Date().toLocaleString('pt-BR'), MARGIN, 16);
+
+  const colDefs = [
+    { h: 'CNPJ',       w: 34 },
+    { h: 'Empresa',    w: 58 },
+    { h: 'E-mail',     w: 56 },
+    { h: 'Hóspede',    w: 40 },
+    { h: 'Check-in',   w: 20 },
+    { h: 'Check-out',  w: 20 },
+    { h: 'Reserva',    w: 18 },
+    { h: 'Diária R$',  w: 18 },
+  ];
+  const totalRaw = colDefs.reduce((s,c) => s + c.w, 0);
+  const scale = USABLE / totalRaw;
+  colDefs.forEach(c => { c.w = Math.round(c.w * scale * 10) / 10; });
+
+  const head = [colDefs.map(c => c.h)];
+  const body = rows.map(r => [r.cgccpf, r.nome, r.email, r.hospede, r.checkin, r.checkout, r.reserva, r.diaria]);
+
+  // Track group boundaries for shading
+  const cnpjGroups = {};
+  let gi = 0;
+  rows.forEach((r, i) => {
+    if (cnpjGroups[r.cgccpf] === undefined) { cnpjGroups[r.cgccpf] = gi++; }
+  });
+
+  doc.autoTable({
+    head,
+    body,
+    startY: 20,
+    margin: { left: MARGIN, right: MARGIN },
+    tableWidth: USABLE,
+    styles: { fontSize: 6, cellPadding: 1.5, font: 'helvetica', valign: 'middle', overflow: 'linebreak' },
+    headStyles: { fillColor: [13, 61, 46], textColor: [240, 223, 160], fontStyle: 'bold', fontSize: 6 },
+    columnStyles: Object.fromEntries(colDefs.map((c,i) => [i, { cellWidth: c.w }])),
+    didParseCell(data) {
+      if (data.section !== 'body') return;
+      const r = rows[data.row.index];
+      const gIdx = cnpjGroups[r.cgccpf];
+      // Alternate group shading
+      if (gIdx % 2 === 0) {
+        data.cell.styles.fillColor = [248, 245, 235];
+      } else {
+        data.cell.styles.fillColor = [235, 242, 238];
+      }
+    },
+    willDrawCell(data) {
+      if (data.section !== 'body') return;
+      const ri = data.row.index;
+      if (ri === 0 || rows[ri-1].cgccpf !== rows[ri].cgccpf) {
+        // Draw gold top border for first row of each group
+        const { doc, cell } = data;
+        doc.setDrawColor(184, 150, 12);
+        doc.setLineWidth(0.4);
+        doc.line(cell.x, cell.y, cell.x + cell.width, cell.y);
+        doc.setDrawColor(0);
+      }
+    }
+  });
+
+  const today = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+  doc.save(`villa-park-empresas-${today}.pdf`);
+});
+
+// ================================================================
+//  UTILS
+// ================================================================
+function hexToRgb(hex) {
+  if (!hex || !hex.startsWith('#')) return null;
+  return {
+    r: parseInt(hex.slice(1, 3), 16),
+    g: parseInt(hex.slice(3, 5), 16),
+    b: parseInt(hex.slice(5, 7), 16),
+  };
+}
+</script>
+</body>
+</html>
