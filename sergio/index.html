@@ -139,9 +139,9 @@
         </div>
         <div class="empresa-import-label">RELATORIO_CHECKIN</div>
         <div class="empresa-import-hint" id="ei-hint-1">Clique para importar</div>
-        <div class="import-formats">.pdf</div>
+        <div class="import-formats">.pdf · .xls · .xlsx</div>
       </div>
-      <input type="file" id="ei-file-1" accept=".pdf" style="display:none" />
+      <input type="file" id="ei-file-1" accept=".pdf,.xls,.xlsx" style="display:none" />
 
       <!-- Import Box 2: FICHA RAZOES -->
       <div class="empresa-import-card" id="ei-zone-2" onclick="document.getElementById('ei-file-2').click()">
@@ -154,9 +154,9 @@
         </div>
         <div class="empresa-import-label">FICHA_RAZOES</div>
         <div class="empresa-import-hint" id="ei-hint-2">Clique para importar</div>
-        <div class="import-formats">.pdf</div>
+        <div class="import-formats">.pdf · .xls · .xlsx</div>
       </div>
-      <input type="file" id="ei-file-2" accept=".pdf" style="display:none" />
+      <input type="file" id="ei-file-2" accept=".pdf,.xls,.xlsx" style="display:none" />
 
       <!-- Import Box 3: DADOS ENFE -->
       <div class="empresa-import-card" id="ei-zone-3" onclick="document.getElementById('ei-file-3').click()">
@@ -978,6 +978,74 @@ async function parseCheckinPDF(file) {
   return rows;
 }
 
+// Parse RELATORIO CHECKIN from XLS/XLSX — returns the same shape as
+// parseCheckinPDF: array of {apto, hospede, checkin, checkout, reserva, diaria}.
+//
+// Unlike FICHA_RAZOES's export, this report's .xls puts every check-in on
+// ONE row with Hóspede and Empresa already in separate cells — so none of
+// the "guess where the company name starts" logic from the PDF parser is
+// needed here at all; that was the least reliable part of this whole tool.
+//
+// Still, column positions are re-detected from the header row (rather than
+// hardcoded) in case a future export shifts columns or repeats the header
+// per page, the way FICHA_RAZOES's export does.
+async function parseCheckinXLS(file) {
+  const buffer = await file.arrayBuffer();
+  const wb = XLSX.read(buffer, { type: 'array', raw: false, cellText: true });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
+
+  const norm = s => String(s || '').trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  const findCol = (row, pred, after) => {
+    for (let i = after + 1; i < row.length; i++) {
+      if (pred(norm(row[i]))) return i;
+    }
+    return -1;
+  };
+
+  const rows = [];
+  let colMap = null; // { apto, hospede, empresa, entrada, saida, reserva, diaria }
+
+  for (let r = 0; r < raw.length; r++) {
+    const row = raw[r];
+    if (!row || !row.some(c => String(c).trim())) continue; // blank row
+
+    const idxApto = findCol(row, v => v === 'apto', -1);
+    if (idxApto >= 0) {
+      const idxHosp = findCol(row, v => v.includes('hospede'), idxApto);
+      const idxEmp  = idxHosp >= 0 ? findCol(row, v => v === 'empresa', idxHosp) : -1;
+      const idxEnt  = idxEmp  >= 0 ? findCol(row, v => v === 'entrada', idxEmp)  : -1;
+      const idxSai  = idxEnt  >= 0 ? findCol(row, v => v === 'saida' || v === 'saída', idxEnt) : -1;
+      const idxRes  = idxSai  >= 0 ? findCol(row, v => v === 'reserva', idxSai) : -1;
+      const idxDia  = idxRes  >= 0 ? findCol(row, v => v.includes('diaria'), idxRes) : -1;
+      if (idxHosp >= 0 && idxEnt >= 0 && idxSai >= 0) {
+        colMap = { apto: idxApto, hospede: idxHosp, empresa: idxEmp, entrada: idxEnt, saida: idxSai, reserva: idxRes, diaria: idxDia };
+      }
+      continue; // header row itself, no reservation data
+    }
+
+    if (!colMap) continue;
+    const apto    = String(row[colMap.apto]    || '').trim();
+    const hospede = String(row[colMap.hospede] || '').trim();
+    // Real data rows have a small room number and a guest name. This
+    // naturally skips the totals footer (empty Apto) and any stray rows.
+    if (!/^\d{1,4}$/.test(apto) || !hospede) continue;
+
+    rows.push({
+      apto,
+      hospede,
+      checkin:  String(row[colMap.entrada] || '').trim(),
+      checkout: String(row[colMap.saida]   || '').trim(),
+      reserva:  colMap.reserva >= 0 ? String(row[colMap.reserva] || '').trim() : '',
+      diaria:   colMap.diaria  >= 0 ? String(row[colMap.diaria]  || '').trim() : '',
+    });
+  }
+
+  return rows;
+}
+
 // Parse FICHA RAZOES PDF — returns Map: key="apto|checkin_dd/mm" → razao number
 async function parseRazoesPDF(file) {
   const text = await extractPDFText(file);
@@ -1034,6 +1102,97 @@ async function parseRazoesPDF(file) {
       map.set(key, { razao, hospede, entrada: checkinKey, empresa });
     }
     // Also store by razao number directly
+    map.set(`razao:${razao}`, { razao, apto, hospede, entrada: checkinKey, empresa });
+  }
+
+  return map;
+}
+
+// Parse FICHA RAZOES from XLS/XLSX — same output shape as parseRazoesPDF
+// (Map keyed by "apto|checkin_dd/mm" and by "razao:<num>").
+//
+// This report, when exported to .xls from the hotel software, is NOT a
+// clean table: it repeats the page header/footer every ~470 rows, inserts
+// a blank "spacer" row before the Empresa line (sometimes, not always),
+// and — critically — some page-blocks have an extra blank column inserted
+// near the start, which shifts every column one position to the right for
+// that block. Hardcoding column indices breaks on those shifted blocks.
+//
+// Fix: don't assume fixed column indices. Re-detect the column positions
+// every time a header row (a row containing "Razão", "Apto", "Hóspede",
+// "Entrada", "Saída" as cell values) is encountered, and use that mapping
+// until the next header row is found. This self-corrects for drift.
+async function parseRazoesXLS(file) {
+  const buffer = await file.arrayBuffer();
+  const wb = XLSX.read(buffer, { type: 'array', raw: false, cellText: true });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
+
+  // Normalize: lowercase + strip accents, so "Hóspede", "Saída", "Razão"
+  // match regardless of accent rendering quirks from the export.
+  const norm = s => String(s || '').trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  const findCol = (row, pred, after) => {
+    for (let i = after + 1; i < row.length; i++) {
+      if (pred(norm(row[i]))) return i;
+    }
+    return -1;
+  };
+
+  const map = new Map();
+  let colMap = null; // { razao, apto, hospede, entrada, saida } — indices
+
+  const isDataRow = (row) => {
+    if (!colMap) return false;
+    const v = String(row[colMap.razao] || '').trim();
+    return /^\d{4,7}$/.test(v); // Razão numbers are always plain digits
+  };
+
+  for (let r = 0; r < raw.length; r++) {
+    const row = raw[r];
+    if (!row || !row.some(c => String(c).trim())) continue; // fully blank row
+
+    // Try to (re)detect a header row — columns can drift per page-block.
+    const idxRazao = findCol(row, v => v === 'razao' || v === 'razão', -1);
+    if (idxRazao >= 0) {
+      const idxApto = findCol(row, v => v === 'apto', idxRazao);
+      const idxHosp = idxApto >= 0 ? findCol(row, v => v.includes('hospede'), idxApto) : -1;
+      const idxEnt  = idxHosp >= 0 ? findCol(row, v => v === 'entrada', idxHosp) : -1;
+      const idxSai  = idxEnt  >= 0 ? findCol(row, v => v === 'saida' || v === 'saída', idxEnt) : -1;
+      if (idxApto >= 0 && idxHosp >= 0 && idxEnt >= 0 && idxSai >= 0) {
+        colMap = { razao: idxRazao, apto: idxApto, hospede: idxHosp, entrada: idxEnt, saida: idxSai };
+      }
+      continue; // header row itself carries no reservation data
+    }
+
+    if (!colMap) continue; // haven't found a valid header block yet
+    if (!isDataRow(row)) continue; // spacer / empresa-only / footer row
+
+    const razao   = String(row[colMap.razao]).trim();
+    const apto    = String(row[colMap.apto]    || '').trim();
+    const hospede = String(row[colMap.hospede] || '').trim();
+    const entrada = String(row[colMap.entrada] || '').trim();
+
+    // The Empresa name (if any) sits in the SAME column as Hóspede, on one
+    // of the next few rows, before the next data row or the next header.
+    // It's genuinely optional — if the reservation has no agency/OTA, that
+    // slot stays blank and we correctly record empresa = ''.
+    let empresa = '';
+    for (let look = r + 1; look < raw.length && look < r + 6; look++) {
+      const lrow = raw[look];
+      if (!lrow) continue;
+      if (isDataRow(lrow)) break;             // reached the next entry
+      if (norm(lrow[colMap.razao]) === 'razao' || norm(lrow[colMap.razao]) === 'razão') break; // next page header
+      const val = String(lrow[colMap.hospede] || '').trim();
+      if (val) { empresa = val; break; }
+    }
+
+    const checkinKey = entrada.length >= 5 ? entrada.substring(0, 5) : '';
+    const key = `${apto}|${checkinKey}`;
+    if (!map.has(key)) {
+      map.set(key, { razao, hospede, entrada: checkinKey, empresa });
+    }
     map.set(`razao:${razao}`, { razao, apto, hospede, entrada: checkinKey, empresa });
   }
 
@@ -1124,10 +1283,16 @@ document.getElementById('btn-gerar').addEventListener('click', async () => {
   try {
     // 1. Parse all three documents
     status.textContent = '⏳ Lendo RELATORIO_CHECKIN…';
-    const checkinRows = await parseCheckinPDF(eiFiles[1]);
+    const ext1 = (eiFiles[1].name.split('.').pop() || '').toLowerCase();
+    const checkinRows = (ext1 === 'xls' || ext1 === 'xlsx')
+      ? await parseCheckinXLS(eiFiles[1])
+      : await parseCheckinPDF(eiFiles[1]);
 
     status.textContent = '⏳ Lendo FICHA_RAZOES…';
-    const razaoMap = await parseRazoesPDF(eiFiles[2]);
+    const ext2 = (eiFiles[2].name.split('.').pop() || '').toLowerCase();
+    const razaoMap = (ext2 === 'xls' || ext2 === 'xlsx')
+      ? await parseRazoesXLS(eiFiles[2])
+      : await parseRazoesPDF(eiFiles[2]);
 
     status.textContent = '⏳ Lendo DADOS_ENFE…';
     const enfeMap = await parseEnfeXLS(eiFiles[3]);
