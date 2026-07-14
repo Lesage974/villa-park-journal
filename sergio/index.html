@@ -959,23 +959,20 @@ async function parseCheckinPDF(file) {
     // We'll take all uppercase words before dates as hospede, then detect if there's a company
     let hospede = beforeFirstDate.replace(/\s+/g, ' ').trim();
 
-    // Detect empresa: check if known company phrases appear
-    let empresa = '';
-    const knownCompanies = ['BOOKING COM', 'EXPEDIA', 'DECOLAR', 'OMNIBEES', 'CVC', 'EHTL', 'MARINGA NET',
-      'AGENCIA LUCK', 'TREND VIAGENS', 'PONTESTUR', 'SENAC', 'ANGELA TURISMO', 'VOETUR', 'FLYTOUR',
-      'SCCP', 'COOBRASTUR', 'A TRAVEL', 'G7 OPERADORA', 'QUEUTUR', 'PRIMUS', 'DECOLANDO'];
-    for (const co of knownCompanies) {
-      if (hospede.toUpperCase().includes(co)) {
-        empresa = co === 'BOOKING COM' ? 'BOOKING COM' : co;
-        hospede = hospede.substring(0, hospede.toUpperCase().indexOf(co)).trim();
-        break;
-      }
+    // Only strip "BOOKING COM" from the hospede text if present, purely for
+    // display cleanliness. We do NOT use this to decide whether to keep the
+    // row — the CHECKIN report concatenates Hóspede+Empresa with no reliable
+    // delimiter, so any fixed whitelist of company names will always miss
+    // companies not in the list (and there are dozens in FICHA_RAZOES).
+    // The real "Empresa == '' or BOOKING COM" filter is applied later,
+    // downstream, using the Empresa column read structurally from
+    // FICHA_RAZOES (see parseRazoesPDF), which reliably distinguishes
+    // "has a company line" from "has no company line" per entry.
+    if (hospede.toUpperCase().includes('BOOKING COM')) {
+      hospede = hospede.substring(0, hospede.toUpperCase().indexOf('BOOKING COM')).trim();
     }
 
-    // Filter: keep only BOOKING COM or no company
-    if (empresa !== '' && empresa !== 'BOOKING COM') continue;
-
-    rows.push({ apto, hospede: hospede.trim(), checkin, checkout, reserva, diaria, empresa });
+    rows.push({ apto, hospede: hospede.trim(), checkin, checkout, reserva, diaria });
   }
 
   return rows;
@@ -999,27 +996,45 @@ async function parseRazoesPDF(file) {
     const entrada = razaoMatch[4]; // dd/mm/yy
     const saida   = razaoMatch[5]; // dd/mm
 
-    // The room number appears on the next 2 lines (after company line)
-    // Line i+1 is company, line i+2 starts with room number
+    // Skip malformed matches where the "hospede" group actually swallowed
+    // an apto number (happens on single-line ledger entries like extra
+    // charges/"PASSANTE" rows that don't represent a real stay) — these
+    // don't have a genuine Hóspede/Empresa structure to read.
+    const hospedeRaw = razaoMatch[3].trim();
+    if (/^\d/.test(hospedeRaw)) continue;
+    const hospede = hospedeRaw;
+
+    // The Empresa line is OPTIONAL: it's only printed when the reservation
+    // actually has a company/OTA attached. So the apto can be on i+1
+    // (no empresa) or i+2 (empresa present on i+1) — this is the condition
+    // that was missing before, which always assumed i+2.
     let apto = '';
-    if (i + 2 < lines.length) {
-      const aptLine = lines[i + 2];
-      const aptMatch = aptLine.match(/^(\d{1,4})\s+/);
-      if (aptMatch) apto = aptMatch[1];
+    let empresa = '';
+    if (i + 1 < lines.length) {
+      const nextLine = lines[i + 1];
+      const aptoOnNext = nextLine.match(/^(\d{1,4})\s+\d/); // "401 69 ..." style
+      if (aptoOnNext) {
+        // No empresa line — apto is right here.
+        apto = aptoOnNext[1];
+        empresa = '';
+      } else if (i + 2 < lines.length) {
+        // nextLine is the empresa name; apto follows on i+2.
+        empresa = nextLine.trim();
+        const aptLine = lines[i + 2];
+        const aptMatch = aptLine.match(/^(\d{1,4})\s+/);
+        if (aptMatch) apto = aptMatch[1];
+      }
     }
 
     // Extract checkin date dd/mm from entrada field
     const checkinKey = entrada.substring(0, 5); // dd/mm
 
-    // Name from razao line
-    const hospede = razaoMatch[3].trim();
-
     const key = `${apto}|${checkinKey}`;
     if (!map.has(key)) {
-      map.set(key, { razao, hospede, entrada: checkinKey });
+      map.set(key, { razao, hospede, entrada: checkinKey, empresa });
     }
     // Also store by razao number directly
-    map.set(`razao:${razao}`, { razao, apto, hospede, entrada: checkinKey });
+    map.set(`razao:${razao}`, { razao, apto, hospede, entrada: checkinKey, empresa });
   }
 
   return map;
@@ -1127,6 +1142,12 @@ document.getElementById('btn-gerar').addEventListener('click', async () => {
       const key = `${row.apto}|${checkinDDMM}`;
       const razaoEntry = razaoMap.get(key);
       if (!razaoEntry) continue;
+
+      // THE CONDITION: only keep reservations whose Empresa (read from
+      // FICHA_RAZOES, which is the reliable source for this field) is
+      // empty (no agency) or exactly "BOOKING COM". Anything else
+      // (EXPEDIA, CVC, AGENCIA LUCK, etc.) is discarded here.
+      if (razaoEntry.empresa !== '' && razaoEntry.empresa !== 'BOOKING COM') continue;
 
       const razao = razaoEntry.razao;
       // Look up in ENFE
