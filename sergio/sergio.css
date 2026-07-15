@@ -229,14 +229,15 @@ body {
 /* Summary chip */
 .sum-chip { display: inline-block; border-radius: 3px; padding: 2px 7px; font-size: .68rem; font-family: 'Playfair Display', serif; font-weight: 700; white-space: nowrap; }
 
-/* Dark mode: desaturate/darken the row color bands slightly so they're readable */
+/* Dark mode: use --bg-cream for left-block cells for readability */
 [data-theme="dark"] .occ-table tbody tr td.td-data,
 [data-theme="dark"] .occ-table tbody tr td.td-rn,
 [data-theme="dark"] .occ-table tbody tr td.td-pct,
 [data-theme="dark"] .occ-table tbody tr td.td-prev,
 [data-theme="dark"] .occ-table tbody tr td.td-input,
 [data-theme="dark"] .occ-table tbody tr td.td-desconto {
-  filter: brightness(0.55) saturate(1.2);
+  background: var(--bg-cream) !important;
+  filter: none;
 }
 
 /* Checkboxes */
