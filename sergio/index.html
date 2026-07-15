@@ -1342,8 +1342,12 @@ document.getElementById('btn-gerar').addEventListener('click', async () => {
 
     // Sort each group by checkin date
     const parseDateBR = s => {
-      const [d, m, y] = s.split('/');
-      return new Date(`20${y}-${m}-${d}`);
+      // handles "dd/mm/yy HH:MM" or "dd/mm/yy" or "dd/mm/yyyy"
+      const parts = s.trim().split(/[\s/]/);
+      const d = parts[0], m = parts[1];
+      const yRaw = parts[2] || '00';
+      const y = yRaw.length === 2 ? '20' + yRaw : yRaw;
+      return new Date(`${y}-${m}-${d}`);
     };
     for (const g of Object.values(groups)) {
       g.sort((a, b) => parseDateBR(a.checkin) - parseDateBR(b.checkin));
